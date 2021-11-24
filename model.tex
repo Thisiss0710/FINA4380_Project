@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{listings}
+\title{FINA4380 Stock Return Model}
+\author{WONG, Kong Wa}
+\date{24 Nov 2021}
+
+\begin{document}
+\maketitle
+\raggedright
+\section{Our model}
+We model return of stock i as
+\begin{equation*}
+	r_i=\beta_{i0}+\beta_{i1}PC_1+\beta_{i2}PC_2+\beta_{i3}PC_3+\beta_{i4}PC_4+\beta_{i5}PC_5+\varepsilon_t
+\end{equation*}
+where $PC_i$ is the ith principal component obtained by PCA and $\beta_i$ is state variable that follows random walk.
+We select the first n (not necessarily 5) principal components such that the proportion of variance explained exceeds 0.9. \\
+We assume that
+\begin{equation*}
+	y_{it}=\mu+\sum_{j=1}^p a_i y_{t-j}+\sum_{j=1}^q b_j \varepsilon_{t-j}+\varepsilon_{it}
+\end{equation*}
+\begin{equation*}
+	\varepsilon_{it}=\sigma_{it} \epsilon_{it}, \quad \sigma_{it}^2=\alpha_{i0}+\sum_{j=1}^m \alpha_{ij} \varepsilon_{it}^2+\sum_{j=1}^s \beta_{ij} \sigma_{i,t-j}^2
+\end{equation*}
+\end{document}
+\section{Principal Components}
+
