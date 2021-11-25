@@ -55,7 +55,7 @@ class ARIMA():
         # print('The smallest AIC is {} for model SARIMAX{}x{}'.format(min(AIC), SARIMAX_model[AIC.index(min(AIC))][0],SARIMAX_model[AIC.index(min(AIC))][1]))
 
 # Fit this model
-    def predGen(self,train):
+    def predGen(self,train,destination,ForecastTillDate):
         self.predList=[]
         for i in range(len(train.columns)):
             train_data_temp = train.iloc[:, i]
@@ -69,13 +69,13 @@ class ARIMA():
             results = mod.fit()
             # pred = results.get_prediction(start='1958-01-01', dynamic=False) # 1-step ahead forecast
             # pred = results.get_prediction(start='1958-01-01', dynamic=True) # predict last year data
-            pred = results.get_forecast('1962-12-01') # forecast
+            pred = results.get_forecast(ForecastTillDate) # forecast
             predList_temp=pred.predicted_mean.values.tolist()
             self.predList.append(predList_temp)
 
         predDf=pd.DataFrame(self.predList).transpose()
         predDf.columns=train.columns
-        predDf.to_csv('ARIMA Prediction.csv')
+        predDf.to_csv(destination)
 
 # prediction = pred2.predicted_mean['1960-01-01':'1960-12-01'].values
 # # flatten nested list
