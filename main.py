@@ -1,4 +1,7 @@
 import DCC
+import ARIMAObject
+from stock_data_preprocessor import preprocess
 
-a = DCC.DCC()
-b = a.fit()
+def main():
+    for 
+    preprocess
