@@ -43,8 +43,6 @@ def data_preprocess():
     grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='W')).tail(1)
     grouped_price_matrix.index = pd.to_datetime(grouped_price_matrix.index,format="%Y/%m/%d")
     grouped_price_matrix.interpolate(method='cubicspline',axis='columns',inplace=True)
-    
-    
     price_matrix.to_csv('collected_adj_close1.csv')
     
     # PCA
