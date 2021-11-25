@@ -11,12 +11,12 @@ modified_start = start + datetime.timedelta(days=1)
 modified_end = end + datetime.timedelta(days=1)
 
 symbols = pd.read_csv('D:/CUHK/yr4 sem1/FINA380/S&P500_ticker1.csv', usecols=['Symbol'])
-for symbol in symbols.values:
-    try:
-        stock = yf.download(symbol[0],start = modified_start, end = modified_end)
-        stock.to_csv(f'D:/CUHK/yr4 sem1/FINA380/project_data/{symbol[0]}.csv')
-    except Exception:
-        print('Download failed. Check if there is any error.')
+# for symbol in symbols.values:
+#     try:
+#         stock = yf.download(symbol[0],start = modified_start, end = modified_end)
+#         stock.to_csv(f'D:/CUHK/yr4 sem1/FINA380/project_data/{symbol[0]}.csv')
+#     except Exception:
+#         print('Download failed. Check if there is any error.')
         
 # close the adj_close prices into a single matrix 'price_matrix'
 price_matrix = pd.DataFrame()
@@ -34,25 +34,27 @@ for symbol in symbols.values:
         price_matrix=pd.merge(price_matrix,adj_close,on=['Date'],how='outer')
     i+=1
 price_matrix.set_index(price_matrix.columns[0],inplace=True)
+price_matrix.index = pd.to_datetime(price_matrix.index)
 price_matrix.to_csv(f'D:/CUHK/yr4 sem1/FINA380/project_data/collected_adj_close.csv')
 
 #process data and fill the blanks
-# print(np.where(np.isnan(price_matrix)))
-# print(price_matrix.index[np.where(np.isnan(price_matrix))[0]])
+grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).tail(1)
+#print(grouped_price_matrix)
+grouped_price_matrix.dropna(inplace=True)
+
 # price_matrix.fillna(method='ffill',inplace=True)
-price_matrix.dropna(inplace=True)
 # price_matrix.to_csv(f'D:/CUHK/yr4 sem1/FINA380/project_data/collected_adj_close1.csv')
 
-# PCA
+# # PCA
 factors=pd.DataFrame()
-data_array = price_matrix.to_numpy()
+data_array = grouped_price_matrix.to_numpy()
 pca = PCA(n_components=0.9)  # explain 90% data
 pca.fit(data_array)
 print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
 eigenvectors = pca.components_  # eigenvectors
 j = 1
 for eigenvec in eigenvectors:
-    factors[j] = np.dot(price_matrix,eigenvec)
+    factors[j] = np.dot(grouped_price_matrix,eigenvec)
     j+=1
 print(factors)  # the pca vectors
 
