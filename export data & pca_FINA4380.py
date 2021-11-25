@@ -32,7 +32,7 @@ for symbol in symbols.values:
         else:
             price_matrix=pd.merge(price_matrix,adj_close,on=['Date'],how='outer')
     
-    i+=1
+    i += 1
 price_matrix.set_index(price_matrix.columns[0],inplace=True)
 price_matrix.index = pd.to_datetime(price_matrix.index,format="%Y/%m/%d")
 price_matrix.to_csv('collected_adj_close.csv')
