@@ -56,12 +56,3 @@ for eigenvec in eigenvectors:
     factors[j] = np.dot(grouped_price_matrix,eigenvec)
     j+=1
 print(factors)  # the pca vectors
-
-
-
-
-
-
-
-
-
