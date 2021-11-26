@@ -142,7 +142,7 @@ for i in range(len(y)):
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-class half_half_balance(bt.Strategy):
+class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
         pass
@@ -173,20 +173,31 @@ if __name__ == '__main__':
     cerebro.addobserver(bt.observers.Value)
 
     # 2.add data feeds
-    # create a data feed
-    total_df = pd.read_csv('project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
+    # # create a data feed
+    # total_df = pd.read_csv('project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
     
-    #add the data feed to cerebro
-    for col_name in total_df.columns:
-        dataframe = total_df[[col_name]]
-        for col in ['open','high','low','close']:
-            dataframe[col] = dataframe[col_name]
-        dataframe['volume']=10000000000000000000
-        datafeed = bt.feeds.PandasData(dataname=dataframe,plot=False)
-        cerebro.adddata(datafeed,name=col_name)
+    # #add the data feed to cerebro
+    # for col_name in total_df.columns:
+    #     dataframe = total_df[[col_name]]
+    #     for col in ['open','high','low','close']:
+    #         dataframe[col] = dataframe[col_name]
+    #     dataframe['volume']=10000000000000000000
+    #     datafeed = bt.feeds.PandasData(dataname=dataframe,plot=False)
+    #     cerebro.adddata(datafeed,name=col_name)
+    
+    path1 = 'stock_data1/'
+    symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
+    for symbol in symbols.values:
+        file_path = path1 + symbol[0] + '.csv'
+        price_matrix = pd.read_csv(file_path,
+                                index_col='Date',
+                                parse_dates=True)
+        price_matrix.rename(columns={'Open':'open','High':'high','Low':'low','Close':'close','Volumn':'volume'},inplace=True)
+        datafeed = bt.feeds.PandasData(dataname=price_matrix,plot=False)
+        cerebro.adddata(datafeed,name=symbol[0])
 
     # 3.add strategies
-    cerebro.addstrategy(half_half_balance)
+    cerebro.addstrategy(highest_sharpe_ratio)
     cerebro.addanalyzer(bt.analyzers.SharpeRatio)
     cerebro.addanalyzer(bt.analyzers.DrawDown)
     # cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)

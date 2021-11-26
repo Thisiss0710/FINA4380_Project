@@ -51,3 +51,22 @@ def data_preprocess():
     return grouped_price_matrix
 
 # a = data_preprocess()
+
+# create data files without adj close
+def data_adjustment():
+    price_matrix = pd.DataFrame()
+    path = 'stock_data/'
+    symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
+    for symbol in symbols.values:
+        file_path = path + symbol[0] + '.csv'
+        price_matrix = pd.read_csv(file_path,
+                                index_col='Date',
+                                usecols=['Date','Open','High','Low','Close','Volume'],
+                                parse_dates=True)
+
+        price_matrix.interpolate(method='spline', order=3, inplace=True)
+        price_matrix.sort_index(inplace=True)
+        price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
+        price_matrix.to_csv(f'stock_data1/{symbol[0]}.csv')
+
+# b = data_adjustment()
