@@ -40,8 +40,8 @@ for date in weekend_date:
         factor = factors.iloc[:, i].to_frame()
         arima = ARIMA.ARIMA()
         arima.AICnSARIMAX(factor)
-        factor_pred = arima.pred()
-        factor_resid = arima.resid()
+        factor_pred = arima.pred(factor)
+        factor_resid = arima.resid(factor)
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
     
