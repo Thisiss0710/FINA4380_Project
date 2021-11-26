@@ -18,7 +18,7 @@ all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=weekend_date, columns=all_price.columns)
 
 for date in weekend_date:
-    period_price = all_price[date - datetime.timedelta(weeks=260):date]
+    period_price = all_price[date - datetime.timedelta(weeks=160):date]
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
     
@@ -29,11 +29,12 @@ for date in weekend_date:
     # print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
     eigenvectors = pca.components_  # eigenvectors
     j = 0
+    print("1--- %s seconds ---" % (time.time() - start_time))
     for eigenvec in eigenvectors:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
     # print(factors)  # the pca vectors
-    
+    print("2--- %s seconds ---" % (time.time() - start_time))
     factor_preds = []
     factor_resids = []
     for i in range(factors.shape[1]):
@@ -44,7 +45,7 @@ for date in weekend_date:
         factor_resid = arima.resid(factor)
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
-    
+    print("3--- %s seconds ---" % (time.time() - start_time))
     for idv_return in period_return.T.values:
         transition_matrix = np.identity(factors.shape[1] + 1)
         observation_matrix = np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1).reshape(factors.shape[0], 1, factors.shape[1] + 1)
@@ -55,20 +56,24 @@ for date in weekend_date:
                           transition_offsets=transition_offset,
                           observation_offsets=observation_offset,
                           em_vars=['transition_covariance',
-                                   'observation_covariance', 
-                                   'initial_state_mean', 
+                                   'observation_covariance',
+                                   'initial_state_mean',
                                    'initial_state_covariance'],
                           n_dim_state=factors.shape[1] + 1,
                           n_dim_obs=1)
-        kf.em(idv_return, n_iter=5)
-        beta_mean, beta_cov = kf.filter(idv_return)
-    
+        #kf.em(idv_return, n_iter=5)
+        beta_mean, beta_cov = kf.smooth(idv_return)
+    print("4--- %s seconds ---" % (time.time() - start_time))
+
+
     dcc = DCC.DCC()
-    dccfit = dcc.fit(factor_resid)
+    dccfit = dcc.fit(np.array(factor_resid))
     factor_cov = dccfit.forecast()
-    
+
+    print("5--- %s seconds ---" % (time.time() - start_time))
+    break
     
     
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+
     
