@@ -220,25 +220,25 @@ class DCCfit():
 # print(dcc_fit.forecast())
 
 
-start = datetime.date(2012,1,1)    # e.g. datetime.date(2000,1,1)
-end = datetime.date.today()    #e.g. datetime.date.today()
-modified_start = start + datetime.timedelta(days=1)
-modified_end = end + datetime.timedelta(days=1)
+# start = datetime.date(2012,1,1)    # e.g. datetime.date(2000,1,1)
+# end = datetime.date.today()    #e.g. datetime.date.today()
+# modified_start = start + datetime.timedelta(days=1)
+# modified_end = end + datetime.timedelta(days=1)
 
-aapl = yf.download('AAPL', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
-tsla = yf.download('TSLA', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
-nvda = yf.download('NVDA', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
-wmt = yf.download('WMT', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
-spy = yf.download('SPY', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
-qqq = yf.download('QQQ', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
+# aapl = yf.download('AAPL', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
+# tsla = yf.download('TSLA', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
+# nvda = yf.download('NVDA', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
+# wmt = yf.download('WMT', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
+# spy = yf.download('SPY', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
+# qqq = yf.download('QQQ', start=modified_start, end=modified_end)['Adj Close'].pct_change().dropna().T * 100
 
 
-dcc = DCC()
-dcc_fit = dcc.fit(np.stack((aapl, tsla, nvda, wmt)))
-print(dcc_fit.forecast())
+# dcc = DCC()
+# dcc_fit = dcc.fit(np.stack((aapl, tsla, nvda, wmt)))
+# print(dcc_fit.forecast())
 
-r = dcc_fit.rho()
-c = dcc_fit.cov()
+# r = dcc_fit.rho()
+# c = dcc_fit.cov()
 
 # plt.plot(c[:,0,0])
 # plt.plot(c[:,1,1])
@@ -246,11 +246,11 @@ c = dcc_fit.cov()
 # plt.plot(c[:,3,3])
 # plt.show()
 
-plt.plot(r[:,0,1])
-plt.plot(r[:,0,2])
-plt.plot(r[:,0,3])
-plt.plot(r[:,1,2])
-plt.plot(r[:,1,3])
-plt.plot(r[:,2,3])
-plt.legend([1,2,3,4,5,6])
-plt.show()
+# plt.plot(r[:,0,1])
+# plt.plot(r[:,0,2])
+# plt.plot(r[:,0,3])
+# plt.plot(r[:,1,2])
+# plt.plot(r[:,1,3])
+# plt.plot(r[:,2,3])
+# plt.legend([1,2,3,4,5,6])
+# plt.show()
