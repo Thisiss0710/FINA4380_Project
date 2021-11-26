@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
 
     # 4.run
-    res = cerebro.run()
+    res = cerebro.run()[0]
     print('value:',cerebro.broker.get_value())
     print('SharpeRatio:',res.analyzers.sharperatio.get_analysis())
     print('DrawDown:',res.analyzers.drawdown.get_analysis())
