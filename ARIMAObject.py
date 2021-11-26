@@ -60,15 +60,34 @@ class ARIMA():
                                             enforce_stationarity=False,
                                             enforce_invertibility=False)
             results = mod.fit()
-            pred = results.get_prediction(start=-1, dynamic=False) # 1-step ahead forecast
+            pred = results.get_prediction(start=-1,dynamic=False) # 1-step ahead forecast
             # pred = results.get_prediction(start='1958-01-01', dynamic=True) # predict last year data
             # pred = results.get_forecast(ForecastTillDate) # forecast
             predList_temp=pred.predicted_mean.values.tolist()
             self.predList.append(predList_temp)
+            # predDf=pd.DataFrame(self.predList).transpose()
+            # predDf.columns=train.columns
+            # predDf.to_csv('prediction.csv')
         return self.predList
-        # predDf=pd.DataFrame(self.predList).transpose()
-        # predDf.columns=train.columns
-        # predDf.to_csv(destination)
+
+    def resid(self,train):
+        self.predList=[]
+        for i in range(len(train.columns)):
+            train_data_temp = train.iloc[:, i]
+            SARIMAX_model_temp=self.SARIMAX_model_list[i]
+            AIC_temp=self.AICList[i]
+            mod = sm.tsa.statespace.SARIMAX(train_data_temp,
+                                            order=SARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
+                                            enforce_stationarity=False,
+                                            enforce_invertibility=False)
+            results = mod.fit()
+            pred = results.resid # Get residual value
+            # predList_temp=pred.predicted_mean.values.tolist()
+            self.predList.append(pred)
+        return self.predList
+            # predDf=pd.DataFrame(self.predList).transpose()
+            # predDf.columns=train.columns
+            # predDf.to_csv('residual.csv')
 
 # prediction = pred2.predicted_mean['1960-01-01':'1960-12-01'].values
 # # flatten nested list
