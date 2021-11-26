@@ -121,6 +121,6 @@ for i in range(len(muRange)):
     sharpe.append(muRange[i]/volRange[i])
 
 bestWgt = wgt[muRange[sharpe.argmax()]]
-weights.loc[-1]=bestWgt
+weights.loc[date] = bestWgt
 
 print("--- %s seconds ---" % (time.time() - start_time))
