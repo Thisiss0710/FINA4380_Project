@@ -29,12 +29,12 @@ for date in weekend_date:
     # print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
     eigenvectors = pca.components_  # eigenvectors
     j = 0
-    print("1--- %s seconds ---" % (time.time() - start_time))
+    #print("1--- %s seconds ---" % (time.time() - start_time))
     for eigenvec in eigenvectors:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
     # print(factors)  # the pca vectors
-    print("2--- %s seconds ---" % (time.time() - start_time))
+    #print("2--- %s seconds ---" % (time.time() - start_time))
     factor_preds = []
     factor_resids = []
     for i in range(factors.shape[1]):
@@ -45,7 +45,7 @@ for date in weekend_date:
         factor_resid = arima.resid(factor)
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
-    print("3--- %s seconds ---" % (time.time() - start_time))
+    #print("3--- %s seconds ---" % (time.time() - start_time))
     for idv_return in period_return.T.values:
         transition_matrix = np.identity(factors.shape[1] + 1)
         observation_matrix = np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1).reshape(factors.shape[0], 1, factors.shape[1] + 1)
@@ -63,17 +63,17 @@ for date in weekend_date:
                           n_dim_obs=1)
         #kf.em(idv_return, n_iter=5)
         beta_mean, beta_cov = kf.smooth(idv_return)
-    print("4--- %s seconds ---" % (time.time() - start_time))
+    #print("4--- %s seconds ---" % (time.time() - start_time))
 
 
     dcc = DCC.DCC()
     dccfit = dcc.fit(np.array(factor_resid))
     factor_cov = dccfit.forecast()
 
-    print("5--- %s seconds ---" % (time.time() - start_time))
-    break
-    
-    
+    #print("5--- %s seconds ---" % (time.time() - start_time))
 
-
-    
+factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
+factor_preds.insert(0,1)
+expR = np.dot(beta_mean[-1,:],factor_preds)
+#TangencyWeight =
+print("--- %s seconds ---" % (time.time() - start_time))
