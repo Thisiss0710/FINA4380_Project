@@ -88,11 +88,11 @@ for date in monthend_date:
     dccfit = dcc.fit(np.array(factor_resid))
     factor_cov = dccfit.forecast()
 
-    #print("5--- %s seconds ---" % (time.time() - start_time))
+    print("5--- %s seconds ---" % (time.time() - start_time))
 
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
-    expR = np.dot(beta_mean[:,-1,:],factor_preds)
+    expR = np.dot(all_beta_mean[:,-1,:],factor_preds)
     expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds)
 
 # parameters

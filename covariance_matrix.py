@@ -24,20 +24,20 @@ def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
                                 single_cov = 0
                                 whole_cov = whole_cov + single_cov
                             else:
-                                single_cov =  beta_expected_matrix.loc[m,x]*beta_expected_matrix.loc[n,y]*pca_cov.loc[x-1,y-1]
+                                single_cov = beta_expected_matrix[m,x]*beta_expected_matrix[n,y]*pca_cov.loc[x-1,y-1]
                                 whole_cov = whole_cov + single_cov
                     
             if m == n:
                 for x in range(len(pca_array)+1):
                     for y in range(len(pca_array)+1):                
                         if x == 0 and y == 0:
-                            single_cov = beta_matrix.loc[x,y] 
+                            single_cov = beta_matrix[x,y] 
                             whole_cov = whole_cov + single_cov
                         elif x == 0 and y != 0:
-                            single_cov = pca_array[y-1] * beta_matrix.loc[x,y]
+                            single_cov = pca_array[y-1] * beta_matrix[x,y]
                             whole_cov = whole_cov + single_cov
                         else:
-                            single_cov = beta_expected_matrix.loc[m,x]*beta_expected_matrix.loc[m,y]*pca_cov.loc[x-1,y-1] + pca_array[x-1]*pca_array[y-1]*beta_matrix.loc[x,y] + pca_cov.loc[x-1,y-1]*beta_matrix.loc[x,y] 
+                            single_cov = beta_expected_matrix[m,x]*beta_expected_matrix[m,y]*pca_cov.loc[x-1,y-1] + pca_array[x-1]*pca_array[y-1]*beta_matrix[x,y] + pca_cov.loc[x-1,y-1]*beta_matrix[x,y] 
                             whole_cov = whole_cov + single_cov
             whole_cov_matrix[m,n] = whole_cov
     return(whole_cov_matrix)
