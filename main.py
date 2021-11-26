@@ -12,7 +12,7 @@ start_time = time.time()
 
 # sdp.data_download()
 end = datetime.date.today()
-start = end - datetime.timedelta(weeks=105)
+start = end - datetime.timedelta(weeks=2)
 weekend_date = pd.date_range(start=start, end=end, freq='W-FRI').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=weekend_date, columns=all_price.columns)
@@ -26,28 +26,38 @@ for date in weekend_date:
     data_array = period_return.to_numpy()
     pca = PCA(n_components=0.8)  # explain 90% data
     pca.fit(data_array)
-    print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
+    # print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
     eigenvectors = pca.components_  # eigenvectors
     j = 0
     for eigenvec in eigenvectors:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
-    print(factors)  # the pca vectors
+    # print(factors)  # the pca vectors
     
-    arima = ARIMA.ARIMA()
+    for i in range(factors.shape[1]):
+        factor = factors.iloc[:, i]
+        arima = ARIMA.ARIMA()
+        arima.AICnSARIMAX(factor)
     
-    for idv_return in period_return:
-        kf = KalmanFilter(transition_matrices=np.identity(factors.shape[1] + 1),
-                          observation_matrices=np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1),
-                          transition_offsets=np.zeros(factors.shape[1] + 1),
-                          observation_offsets=np.array([0]),
+    for idv_return in period_return.T.values:
+        print(idv_return)
+        transition_matrix = np.identity(factors.shape[1] + 1)
+        observation_matrix = np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1).reshape(factors.shape[0], 1, factors.shape[1] + 1)
+        transition_offset = np.zeros(factors.shape[1] + 1)
+        observation_offset = np.array([0])
+        kf = KalmanFilter(transition_matrices=transition_matrix,
+                          observation_matrices=observation_matrix,
+                          transition_offsets=transition_offset,
+                          observation_offsets=observation_offset,
                           em_vars=['transition_covariance',
                                    'observation_covariance', 
                                    'initial_state_mean', 
                                    'initial_state_covariance'],
-                          n_dim_state=factors.shape[1] + 1)
-    
-    
-    
+                          n_dim_state=factors.shape[1] + 1,
+                          n_dim_obs=1)
+        kf.em(idv_return, n_iter=5)
+        beta_mean, beta_cov = kf.filter(idv_return)
+        
+
     print("--- %s seconds ---" % (time.time() - start_time))
     
