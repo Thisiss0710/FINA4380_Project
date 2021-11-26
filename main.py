@@ -2,6 +2,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
+from pykalman import KalmanFilter
 import DCC
 import ARIMA
 import stock_data_preprocessor as sdp
@@ -34,6 +35,18 @@ for date in weekend_date:
     print(factors)  # the pca vectors
     
     arima = ARIMA.ARIMA()
+    
+    for idv_return in period_return:
+        kf = KalmanFilter(transition_matrices=np.identity(factors.shape[1] + 1),
+                          observation_matrices=np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1),
+                          transition_offsets=np.zeros(factors.shape[1] + 1),
+                          observation_offsets=np.array([0]),
+                          em_vars=['transition_covariance',
+                                   'observation_covariance', 
+                                   'initial_state_mean', 
+                                   'initial_state_covariance'],
+                          n_dim_state=factors.shape[1] + 1)
+    
     
     
     print("--- %s seconds ---" % (time.time() - start_time))
