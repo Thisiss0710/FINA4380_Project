@@ -43,7 +43,7 @@ def data_preprocess():
     # price_matrix.to_csv('collected_adj_close.csv')
     
     # process data and fill the blanks
-    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='W-FRI')).nth(-1)
+    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
     # grouped_price_matrix.index = pd.to_datetime(grouped_price_matrix.index,format="%Y/%m/%d")
     
     # grouped_price_matrix.dropna(axis='columns',inplace=True)

@@ -14,14 +14,14 @@ from covariance_matrix import covariance_matrix
 start_time = time.time()
 
 # sdp.data_download()
-end = datetime.datetime.date(2021, 11, 19)
-start = end - datetime.timedelta(weeks=2)
-weekend_date = pd.date_range(start=start, end=end, freq='W-FRI').date
+end = datetime.datetime.date(2021, 10, 31)
+start = end - datetime.timedelta(months=24)
+monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
-weights = pd.DataFrame(index=weekend_date, columns=all_price.columns)
+weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
 
-for date in weekend_date:
-    period_price = all_price[date - datetime.timedelta(weeks=160):date]
+for date in monthend_date:
+    period_price = all_price[date - datetime.timedelta(months=60):date]
     for ticker in period_price:
         if period_price[ticker].iloc[0] == np.nan:
             weights.at[date, ticker] = 0
@@ -30,7 +30,7 @@ for date in weekend_date:
     
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
-    pca = PCA(n_components=0.8)  # explain 90% data
+    pca = PCA(n_components=0.8)  # explain 80% data
     pca.fit(data_array)
     # print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
     eigenvectors = pca.components_  # eigenvectors
@@ -86,7 +86,6 @@ expCov = covariance_matrix(expR,beta_cov,beta_mean,factor_cov,factor_preds)
 # parameters
 lb = 0 #0.0
 ub = 1 #1.0
-useWeekly = False
 alpha = 0.1
 riskMeasure = 'vol' #vol, VaR, CVaR
 
