@@ -54,9 +54,10 @@ for date in monthend_date:
         arima = ARIMA.ARIMA()
         arima.AICnSARIMAX(factor)
         factor_pred = arima.pred(factor)
-        factor_resid = arima.resid(factor)
+        factor_resid = arima.resid(factor)[0].to_numpy()
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
+    factor_resids = np.array(factor_resids)
         
     #print("3--- %s seconds ---" % (time.time() - start_time))
     all_beta_mean = []
@@ -85,7 +86,7 @@ for date in monthend_date:
 
 
     dcc = DCC.DCC()
-    dccfit = dcc.fit(np.array(factor_resid))
+    dccfit = dcc.fit(factor_resids)
     factor_cov = dccfit.forecast()
 
     print("5--- %s seconds ---" % (time.time() - start_time))
@@ -93,7 +94,7 @@ for date in monthend_date:
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean[:,-1,:],factor_preds)
-    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds)
+    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:])
 
 # parameters
 lb = 0 #0.0
