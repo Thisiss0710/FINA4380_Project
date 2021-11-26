@@ -94,7 +94,7 @@ for date in monthend_date:
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean[:,-1,:],factor_preds)
-    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:])
+    expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean[:,-1,:], factor_cov, factor_preds[1:])
 
 # parameters
 lb = 0 #0.0
@@ -122,7 +122,7 @@ for i in range(len(muRange)):
         bndsa = bndsa + ((lb,ub),)  #put bound of each stock
     consTR = ({'type':'eq','fun': lambda x: 1 - np.sum(x)},    # 'eq' means equal to; 'fun' is function; this line is meaning that 1-np.sum(x)=0
               {'type':'eq','fun': lambda x: mu - np.dot(x,R)})
-    w = minimize(MV, x_0, method = 'SLSQP',constraints=consTR,bounds=bndsa, args=(omega))
+    w = minimize(MV, x_0, method = 'SLSQP', constraints=consTR,bounds=bndsa, args=(omega), options={'disp': False})
     # omega is referring to the cov_mat
     # args means the extra arguments passed to the objective function (就是objective function裏面需要的其他參數）
     # args can be more than one!!!!!!
@@ -133,7 +133,7 @@ for i in range(len(muRange)):
 sharpe = np.array([])
 
 for i in range(len(muRange)):
-    sharpe.append(muRange[i]/volRange[i])
+    np.append(sharpe, muRange[i]/volRange[i])
 
 bestWgt = wgt[muRange[sharpe.argmax()]]
 nulls = weights.isnull(weights.loc[date])
@@ -163,55 +163,53 @@ class highest_sharpe_ratio(bt.Strategy):
             # self.order_target_percent(target=0.45,data='AAL')
             # self.order_target_percent(target=0.45,data='A')
             #要留一部分，不应满仓，可供顾客赎回    
-    
-if __name__ == '__main__':
 
-    # 1.creating a cerebro
-    cerebro = bt.Cerebro(stdstats=False)
-    #可以把默认的obeserver在图上的表示线关掉
-    cerebro.addobserver(bt.observers.Trades)
-    cerebro.addobserver(bt.observers.BuySell)
-    cerebro.addobserver(bt.observers.Value)
+# 1.creating a cerebro
+cerebro = bt.Cerebro(stdstats=False)
+#可以把默认的obeserver在图上的表示线关掉
+cerebro.addobserver(bt.observers.Trades)
+cerebro.addobserver(bt.observers.BuySell)
+cerebro.addobserver(bt.observers.Value)
 
-    # 2.add data feeds
-    # # create a data feed
-    # total_df = pd.read_csv('project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
+# 2.add data feeds
+# # create a data feed
+# total_df = pd.read_csv('project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
     
-    # #add the data feed to cerebro
-    # for col_name in total_df.columns:
-    #     dataframe = total_df[[col_name]]
-    #     for col in ['open','high','low','close']:
-    #         dataframe[col] = dataframe[col_name]
-    #     dataframe['volume']=10000000000000000000
-    #     datafeed = bt.feeds.PandasData(dataname=dataframe,plot=False)
-    #     cerebro.adddata(datafeed,name=col_name)
+# #add the data feed to cerebro
+# for col_name in total_df.columns:
+#     dataframe = total_df[[col_name]]
+#     for col in ['open','high','low','close']:
+#         dataframe[col] = dataframe[col_name]
+#     dataframe['volume']=10000000000000000000
+#     datafeed = bt.feeds.PandasData(dataname=dataframe,plot=False)
+#     cerebro.adddata(datafeed,name=col_name)
     
-    path1 = 'stock_data1/'
-    symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
-    for symbol in symbols.values:
-        file_path = path1 + symbol[0] + '.csv'
-        price_matrix = pd.read_csv(file_path,
-                                index_col='Date',
-                                parse_dates=True)
-        price_matrix.rename(columns={'Open':'open','High':'high','Low':'low','Close':'close','Volumn':'volume'},inplace=True)
-        datafeed = bt.feeds.PandasData(dataname=price_matrix,plot=False)
-        cerebro.adddata(datafeed,name=symbol[0])
+path1 = 'stock_data1/'
+symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
+for symbol in symbols.values:
+    file_path = path1 + symbol[0] + '.csv'
+    price_matrix = pd.read_csv(file_path,
+                               index_col='Date',
+                               parse_dates=True)
+    price_matrix.rename(columns={'Open':'open','High':'high','Low':'low','Close':'close','Volumn':'volume'},inplace=True)
+    datafeed = bt.feeds.PandasData(dataname=price_matrix,plot=False)
+    cerebro.adddata(datafeed,name=symbol[0])
 
-    # 3.add strategies
-    cerebro.addstrategy(highest_sharpe_ratio)
-    cerebro.addanalyzer(bt.analyzers.SharpeRatio)
-    cerebro.addanalyzer(bt.analyzers.DrawDown)
-    # cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
+# 3.add strategies
+cerebro.addstrategy(highest_sharpe_ratio)
+cerebro.addanalyzer(bt.analyzers.SharpeRatio)
+cerebro.addanalyzer(bt.analyzers.DrawDown)
+# cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
 
-    # 4.run
-    res = cerebro.run()[0]
-    print('value:',cerebro.broker.get_value())
-    print('SharpeRatio:',res.analyzers.sharperatio.get_analysis())
-    print('DrawDown:',res.analyzers.drawdown.get_analysis())
-    # print('TradeAnalyzer:',res.analyzers.tradeanalyzer.get_analysis())
+# 4.run
+res = cerebro.run()[0]
+print('value:',cerebro.broker.get_value())
+print('SharpeRatio:',res.analyzers.sharperatio.get_analysis())
+print('DrawDown:',res.analyzers.drawdown.get_analysis())
+# print('TradeAnalyzer:',res.analyzers.tradeanalyzer.get_analysis())
     
-    # 5.plot results
-    cerebro.plot(style='candle',volume=False)
+# 5.plot results
+cerebro.plot(style='candle',volume=False)
 
 
 
