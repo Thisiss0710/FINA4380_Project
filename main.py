@@ -11,6 +11,7 @@ import ARIMA
 import stock_data_preprocessor as sdp
 from scipy.optimize import minimize
 import time
+from dateutil.relativedelta import relativedelta
 import backtrader as bt
 
 
@@ -19,14 +20,14 @@ from covariance_matrix import covariance_matrix
 start_time = time.time()
 
 # sdp.data_download()
-end = datetime.datetime.date(2021, 10, 31)
-start = end - datetime.timedelta(months=24)
+end = datetime.date(2021, 10, 31)
+start = end + relativedelta(months=-24)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
 
 for date in monthend_date:
-    period_price = all_price[date - datetime.timedelta(months=60):date]
+    period_price = all_price[date + relativedelta(months=-60):date]
     for ticker in period_price:
         if period_price[ticker].iloc[0] == np.nan:
             weights.at[date, ticker] = 0
