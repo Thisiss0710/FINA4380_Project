@@ -63,6 +63,9 @@ for date in weekend_date:
         kf.em(idv_return, n_iter=5)
         beta_mean, beta_cov = kf.filter(idv_return)
     
+    dcc = DCC.DCC()
+    dccfit = dcc.fit(factor_resid)
+    factor_cov = dccfit.forecast()
     
 
     print("--- %s seconds ---" % (time.time() - start_time))
