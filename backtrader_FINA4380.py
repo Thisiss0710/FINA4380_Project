@@ -19,8 +19,12 @@ class half_half_balance(bt.Strategy):
         else:
             this_month_length = (datetime.datetime(year,month+1,1)-datetime.datetime(year,month,1)).days
         if today.day == this_month_length:  #月底那一天rebalance
-            self.order_target_percent(target=0.45,data='AAL')
-            self.order_target_percent(target=0.45,data='A')
+            for column_name in weight.columns:
+                for i in weight.index:
+                    ratio = weight.loc[i,column_name]
+                    self.order_target_percent(target=ratio,data=column_name)
+            # self.order_target_percent(target=0.45,data='AAL')
+            # self.order_target_percent(target=0.45,data='A')
             #要留一部分，不应满仓，可供顾客赎回    
     
 if __name__ == '__main__':
