@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     # 2.add data feeds
     # create a data feed
-    total_df = pd.read_csv('project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
+    total_df = pd.read_csv('D:/CUHK/yr4 sem1/FINA380/project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
     # total_df = pd.read_csv('D:/CUHK/yr4 sem1/FINA380/project_data/A_AAL.csv',index_col='Date',parse_dates=True)
     
     #add the data feed to cerebro
@@ -48,11 +48,16 @@ if __name__ == '__main__':
 
     # 3.add strategies
     cerebro.addstrategy(half_half_balance)
+    cerebro.addanalyzer(bt.analyzers.SharpeRatio)
+    cerebro.addanalyzer(bt.analyzers.DrawDown)
+    # cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
 
     # 4.run
-    cerebro.run()
+    res = cerebro.run()
     print('value:',cerebro.broker.get_value())
-
+    print('SharpeRatio:',res.analyzers.sharperatio.get_analysis())
+    print('DrawDown:',res.analyzers.drawdown.get_analysis())
+    # print('TradeAnalyzer:',res.analyzers.tradeanalyzer.get_analysis())
     
     # 5.plot results
     cerebro.plot(style='candle',volume=False)
