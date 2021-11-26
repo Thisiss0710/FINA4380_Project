@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 import DCC
-import ARIMAObject
+import ARIMA
 import stock_data_preprocessor as sdp
 
 import time
@@ -32,5 +32,9 @@ for date in weekend_date:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
     print(factors)  # the pca vectors
+    
+    arima = ARIMA.ARIMA()
+    
+    
     print("--- %s seconds ---" % (time.time() - start_time))
     

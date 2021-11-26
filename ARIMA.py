@@ -12,8 +12,8 @@ class ARIMA():
         self.SARIMAX_model_list=[]
         self.predList=[]
         # Define the d and q parameters to take any value between 0 and 1
-        q = range(0,2)
-        d = range(0,1)
+        q = range(0, 2)
+        d = range(0, 1)
         # Define the p parameters to take any value between 0 and 3
         p = range(0, 4)
         # Generate all different combinations of p, q and q triplets
