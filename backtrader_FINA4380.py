@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     # 2.add data feeds
     # create a data feed
-    total_df = pd.read_csv('D:/CUHK/yr4 sem1/FINA380/project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
+    total_df = pd.read_csv('project_data/collected_adj_close.csv',index_col='Date',parse_dates=True)
     # total_df = pd.read_csv('D:/CUHK/yr4 sem1/FINA380/project_data/A_AAL.csv',index_col='Date',parse_dates=True)
     
     #add the data feed to cerebro
