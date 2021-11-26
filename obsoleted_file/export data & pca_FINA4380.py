@@ -37,25 +37,27 @@ def data_preprocess():
         i += 1
     price_matrix.set_index(price_matrix.columns[0],inplace=True)
     price_matrix.index = pd.to_datetime(price_matrix.index,format="%Y/%m/%d")
+    price_matrix.interpolate(method='spline', order=3, inplace=True)
     price_matrix.to_csv('collected_adj_close.csv')
     
     # process data and fill the blanks
     grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='W')).tail(1)
     grouped_price_matrix.index = pd.to_datetime(grouped_price_matrix.index,format="%Y/%m/%d")
-    grouped_price_matrix.interpolate(method='cubicspline',axis='columns',inplace=True)
-    price_matrix.to_csv('collected_adj_close1.csv')
+    
+    grouped_price_matrix.to_csv('collected_adj_close1.csv')
+    grouped_price_matrix = grouped_price_matrix.pct_change().iloc[1:]
     
     # PCA
     factors=pd.DataFrame()
     data_array = grouped_price_matrix.to_numpy()
-    pca = PCA(n_components=0.95)  # explain 95% data
+    pca = PCA(n_components=0.9)  # explain 90% data
     pca.fit(data_array)
     print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
     eigenvectors = pca.components_  # eigenvectors
     j = 0
     for eigenvec in eigenvectors:
         factors[j] = np.dot(grouped_price_matrix,eigenvec)
-        j += 0
+        j += 1
     print(factors)  # the pca vectors
 
 data_preprocess()
