@@ -22,6 +22,9 @@ weights = pd.DataFrame(index=weekend_date, columns=all_price.columns)
 
 for date in weekend_date:
     period_price = all_price[date - datetime.timedelta(weeks=160):date]
+    for ticker in period_price:
+        if period_price[ticker].iloc[0] == np.nan:
+            weights.at[date, ticker] = 0
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
     
@@ -121,6 +124,9 @@ for i in range(len(muRange)):
     sharpe.append(muRange[i]/volRange[i])
 
 bestWgt = wgt[muRange[sharpe.argmax()]]
-weights.loc[date] = bestWgt
+nulls = weights.isnull(weights.loc[date])
+y = [i for i in range(len(nulls)) if nulls.iloc[i] == True]
+for i in range(len(y)):
+    weights.loc[date].iloc[y[i]] = bestWgt[i]
 
 print("--- %s seconds ---" % (time.time() - start_time))
