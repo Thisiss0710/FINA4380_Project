@@ -67,7 +67,6 @@ for date in weekend_date:
     dcc = DCC.DCC()
     dccfit = dcc.fit(factor_resid)
     factor_cov = dccfit.forecast()
-
     break
 
     print("--- %s seconds ---" % (time.time() - start_time))
