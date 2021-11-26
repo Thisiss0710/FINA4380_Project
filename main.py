@@ -34,13 +34,18 @@ for date in weekend_date:
         j += 1
     # print(factors)  # the pca vectors
     
+    factor_preds = []
+    factor_resids = []
     for i in range(factors.shape[1]):
         factor = factors.iloc[:, i]
         arima = ARIMA.ARIMA()
         arima.AICnSARIMAX(factor)
+        factor_pred = arima.pred()
+        factor_resid = arima.resid()
+        factor_preds.append(factor_pred)
+        factor_resids.append(factor_resid)
     
     for idv_return in period_return.T.values:
-        print(idv_return)
         transition_matrix = np.identity(factors.shape[1] + 1)
         observation_matrix = np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1).reshape(factors.shape[0], 1, factors.shape[1] + 1)
         transition_offset = np.zeros(factors.shape[1] + 1)
@@ -57,7 +62,8 @@ for date in weekend_date:
                           n_dim_obs=1)
         kf.em(idv_return, n_iter=5)
         beta_mean, beta_cov = kf.filter(idv_return)
-        
+    
+    
 
     print("--- %s seconds ---" % (time.time() - start_time))
     

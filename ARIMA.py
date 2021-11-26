@@ -12,8 +12,8 @@ class ARIMA():
         self.SARIMAX_model_list=[]
         self.predList=[]
         # Define the d and q parameters to take any value between 0 and 1
-        q = range(0,2)
-        d = range(0,1)
+        q = range(0, 2)
+        d = range(0, 1)
         # Define the p parameters to take any value between 0 and 3
         p = range(0, 4)
         # Generate all different combinations of p, q and q triplets
@@ -32,7 +32,7 @@ class ARIMA():
                     try:
                         mod = sm.tsa.statespace.SARIMAX(train_data_temp,
                                                         order=param,
-                                                        enforce_stationarity=False,
+                                                        enforce_stationarity=True,
                                                         enforce_invertibility=False)
 
                         results = mod.fit()
@@ -52,12 +52,12 @@ class ARIMA():
     def pred(self,train):
         self.predList=[]
         for i in range(len(train.columns)):
-            train_data_temp = train.iloc[:, i]
+            train_data_temp = train.iloc[:, i].to_frame()
             SARIMAX_model_temp=self.SARIMAX_model_list[i]
             AIC_temp=self.AICList[i]
             mod = sm.tsa.statespace.SARIMAX(train_data_temp,
                                             order=SARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
-                                            enforce_stationarity=False,
+                                            enforce_stationarity=True,
                                             enforce_invertibility=False)
             results = mod.fit()
             pred = results.get_prediction(start=-1,dynamic=False) # 1-step ahead forecast
@@ -95,3 +95,4 @@ class ARIMA():
 # # Mean Absolute Percentage Error
 # MAPE = np.mean(np.abs((truth - prediction) / truth)) * 100
 # print('The Mean Absolute Percentage Error for the forecast of year 1960 is {:.2f}%'.format(MAPE))
+
