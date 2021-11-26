@@ -40,14 +40,14 @@ def data_preprocess():
     # price_matrix.index = pd.to_datetime(price_matrix.index,format="%Y/%m/%d")
     price_matrix.interpolate(method='spline', order=3, inplace=True)
     price_matrix.sort_index(inplace=True)
-    price_matrix.to_csv('collected_adj_close.csv')
+    # price_matrix.to_csv('collected_adj_close.csv')
     
     # process data and fill the blanks
-    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='W')).nth(0)
+    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='W-FRI')).nth(-1)
     # grouped_price_matrix.index = pd.to_datetime(grouped_price_matrix.index,format="%Y/%m/%d")
     
     # grouped_price_matrix.dropna(axis='columns',inplace=True)
-    grouped_price_matrix.to_csv('collected_adj_close1.csv')
+    # grouped_price_matrix.to_csv('collected_adj_close1.csv')
     return grouped_price_matrix
 
 # a = data_preprocess()
