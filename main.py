@@ -6,8 +6,9 @@ from pykalman import KalmanFilter
 import DCC
 import ARIMA
 import stock_data_preprocessor as sdp
-
+from scipy.optimize import minimize
 import time
+
 start_time = time.time()
 
 # sdp.data_download()
@@ -75,5 +76,41 @@ for date in weekend_date:
 factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
 factor_preds.insert(0,1)
 expR = np.dot(beta_mean[-1,:],factor_preds)
-#TanWeight =
+
+# parameters
+lb = 0 #0.0
+ub = 1 #1.0
+useWeekly = False
+alpha = 0.1
+riskMeasure = 'vol' #vol, VaR, CVaR
+
+def MV(w, cov_mat):   # w = alpha which is the weight, cov_matrix should be known
+    return np.dot(w,np.dot(cov_mat,w.T))
+
+n = len(data_m_ret.columns)
+muRange = np.arange(0.0055,0.013,0.0002)
+volRange = np.zeros(len(muRange))
+R = expR
+omega = data_m_ret.cov()
+
+wgt = {}   # weight
+
+for i in range(len(muRange)):
+    mu = muRange[i]
+    wgt[mu] = []
+    x_0 = np.ones(n)/ n  #initial guess
+    bndsa = ((lb,ub),)
+    for j in range(1,n):
+        bndsa = bndsa + ((lb,ub),)  #put bound of each stock
+    consTR = ({'type':'eq','fun': lambda x: 1 - np.sum(x)},    # 'eq' means equal to; 'fun' is function; this line is meaning that 1-np.sum(x)=0
+              {'type':'eq','fun': lambda x: mu - np.dot(x,R)})
+    w = minimize(MV, x_0, method = 'SLSQP',constraints=consTR,bounds=bndsa, args=(omega))
+    # omega is referring to the cov_mat
+    # args means the extra arguments passed to the objective function (就是objective function裏面需要的其他參數）
+    # args can be more than one!!!!!!
+    volRange[i] = np.dot(w.x,np.dot(omega, w.x.T)) ** 0.5   # w.x是因爲w算出了很多東西，但我們取得是x，其他的還有jac
+
+    wgt[mu].extend(np.squeeze(w.x))
+
+#TanWeight = np.dot(expR,np.dot(cov_mat,expR.T))
 print("--- %s seconds ---" % (time.time() - start_time))
