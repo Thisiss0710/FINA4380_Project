@@ -79,8 +79,9 @@ for date in monthend_date:
                           n_dim_obs=1)
         #kf.em(idv_return, n_iter=5)
         beta_mean, beta_cov = kf.smooth(idv_return)
-        all_beta_mean = all_beta_mean.append(beta_mean)
-        all_beta_cov = np.array(all_beta_mean.append(beta_cov))
+        all_beta_mean.append(beta_mean)
+        all_beta_cov.append(beta_cov)
+    all_beta_mean, all_beta_cov = np.array(all_beta_mean), np.array(all_beta_cov)
     #print("4--- %s seconds ---" % (time.time() - start_time))
 
 
