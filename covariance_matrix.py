@@ -7,7 +7,7 @@ import pandas as pd
 # pca_array is the expected value of pca
 # s_rt is the array of stock return
 
-def covariance_matrix(date,s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
+def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
     l = len(s_rt)
     whole_cov_matrix = pd.DataFrame(np.zeros((l,l)))
     for m in range(len(s_rt)):  # s_rt = stock_return and stock m 
