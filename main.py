@@ -24,7 +24,7 @@ for date in weekend_date:
     
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
-    pca = PCA(n_components=0.8)  # explain 90% data
+    pca = PCA(n_components=0.8)  # explain 80% data
     pca.fit(data_array)
     # print(pca.explained_variance_ratio_)  # the ratio of data explained by PCA vectors
     eigenvectors = pca.components_  # eigenvectors
