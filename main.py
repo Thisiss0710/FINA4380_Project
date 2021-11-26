@@ -54,7 +54,7 @@ for date in monthend_date:
         arima = ARIMA.ARIMA()
         arima.AICnSARIMAX(factor)
         factor_pred = arima.pred(factor)
-        factor_resid = arima.resid(factor)
+        factor_resid = arima.resid(factor)[0].to_numpy()
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
         
@@ -93,7 +93,7 @@ for date in monthend_date:
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean[:,-1,:],factor_preds)
-    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds)
+    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:])
 
 # parameters
 lb = 0 #0.0
