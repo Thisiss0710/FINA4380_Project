@@ -11,10 +11,7 @@ import ARIMA
 import stock_data_preprocessor as sdp
 from scipy.optimize import minimize
 import time
-
-
 import backtrader as bt
-import datetime
 
 
 from covariance_matrix import covariance_matrix
