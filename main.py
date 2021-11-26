@@ -5,16 +5,15 @@ import datetime
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
+from scipy.optimize import minimize
 from pykalman import KalmanFilter
 import DCC
 import ARIMA
 import stock_data_preprocessor as sdp
-from scipy.optimize import minimize
+
 import time
 from dateutil.relativedelta import relativedelta
 import backtrader as bt
-
-
 from covariance_matrix import covariance_matrix
 
 start_time = time.time()
