@@ -27,6 +27,7 @@ all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
 
 for date in monthend_date:
+    expected_return = []
     period_price = all_price[date + relativedelta(months=-60):date]
     for ticker in period_price:
         if period_price[ticker].iloc[0] == np.nan:
@@ -57,7 +58,10 @@ for date in monthend_date:
         factor_resid = arima.resid(factor)
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
+        
     #print("3--- %s seconds ---" % (time.time() - start_time))
+    all_beta_mean = []
+    all_beta_cov = []
     for idv_return in period_return.T.values:
         transition_matrix = np.identity(factors.shape[1] + 1)
         observation_matrix = np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1).reshape(factors.shape[0], 1, factors.shape[1] + 1)
@@ -75,6 +79,8 @@ for date in monthend_date:
                           n_dim_obs=1)
         #kf.em(idv_return, n_iter=5)
         beta_mean, beta_cov = kf.smooth(idv_return)
+        all_beta_mean = np.array(all_beta_mean.append(beta_mean))
+        all_beta_cov = np.array(all_beta_mean.append(beta_cov))
     #print("4--- %s seconds ---" % (time.time() - start_time))
 
 
@@ -84,10 +90,10 @@ for date in monthend_date:
 
     #print("5--- %s seconds ---" % (time.time() - start_time))
 
-factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
-factor_preds.insert(0,1)
-expR = np.dot(beta_mean[-1,:],factor_preds)
-expCov = covariance_matrix(expR,beta_cov,beta_mean,factor_cov,factor_preds)
+    factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
+    factor_preds.insert(0,1)
+    expR = np.dot(beta_mean[:,-1,:],factor_preds)
+    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds)
 
 # parameters
 lb = 0 #0.0
