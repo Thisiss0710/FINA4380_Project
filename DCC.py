@@ -96,7 +96,7 @@ class DCC():
         theta_int = self.theta
         res = spo.minimize(negative_likelihood,
                             (theta_int[0], theta_int[1]),
-                            args=(train),
+                            args=(np.array(train)),
                             method=self.method,
                             bounds=((0, 1), (0, 1)),
                             constraints=({'type': 'ineq', 'fun': lambda x: 1 - x[0] - x[1]}),

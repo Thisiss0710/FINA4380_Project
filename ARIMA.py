@@ -35,7 +35,7 @@ class ARIMA():
                                                         enforce_stationarity=True,
                                                         enforce_invertibility=False)
 
-                        results = mod.fit()
+                        results = mod.fit(disp=False)
                         AIC.append(results.aic)
                         SARIMAX_model.append([param])
                     except:
@@ -59,7 +59,7 @@ class ARIMA():
                                             order=SARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
                                             enforce_stationarity=True,
                                             enforce_invertibility=False)
-            results = mod.fit()
+            results = mod.fit(disp=False)
             pred = results.get_prediction(start=-1,dynamic=False) # 1-step ahead forecast
             # pred = results.get_prediction(start='1958-01-01', dynamic=True) # predict last year data
             # pred = results.get_forecast(ForecastTillDate) # forecast
@@ -80,7 +80,7 @@ class ARIMA():
                                             order=SARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
                                             enforce_stationarity=False,
                                             enforce_invertibility=False)
-            results = mod.fit()
+            results = mod.fit(disp=False)
             pred = results.resid # Get residual value
             # predList_temp=pred.predicted_mean.values.tolist()
             self.predList.append(pred)
