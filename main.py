@@ -11,7 +11,7 @@ import time
 start_time = time.time()
 
 # sdp.data_download()
-end = datetime.date.today()
+end = datetime.datetime.date(2021, 11, 19)
 start = end - datetime.timedelta(weeks=2)
 weekend_date = pd.date_range(start=start, end=end, freq='W-FRI').date
 all_price = sdp.data_preprocess()
@@ -75,5 +75,5 @@ for date in weekend_date:
 factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
 factor_preds.insert(0,1)
 expR = np.dot(beta_mean[-1,:],factor_preds)
-#TangencyWeight =
+#TanWeight =
 print("--- %s seconds ---" % (time.time() - start_time))
