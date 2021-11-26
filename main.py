@@ -84,12 +84,9 @@ for date in monthend_date:
     all_beta_mean, all_beta_cov = np.array(all_beta_mean), np.array(all_beta_cov)
     #print("4--- %s seconds ---" % (time.time() - start_time))
 
-
     dcc = DCC.DCC()
     dccfit = dcc.fit(factor_resids)
     factor_cov = dccfit.forecast()
-
-    print("5--- %s seconds ---" % (time.time() - start_time))
 
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
@@ -129,6 +126,8 @@ for i in range(len(muRange)):
     volRange[i] = np.dot(w.x,np.dot(omega, w.x.T)) ** 0.5   # w.x是因爲w算出了很多東西，但我們取得是x，其他的還有jac
 
     wgt[mu].extend(np.squeeze(w.x))
+    
+    print("1--- %s seconds ---" % (time.time() - start_time))
 
 sharpe = np.array([])
 
@@ -210,6 +209,8 @@ print('DrawDown:',res.analyzers.drawdown.get_analysis())
     
 # 5.plot results
 cerebro.plot(style='candle',volume=False)
+
+print("2--- %s seconds ---" % (time.time() - start_time))
 
 
 
