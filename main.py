@@ -9,6 +9,8 @@ import stock_data_preprocessor as sdp
 from scipy.optimize import minimize
 import time
 
+from covariance_matrix import covariance_matrix
+
 start_time = time.time()
 
 # sdp.data_download()
@@ -76,6 +78,7 @@ for date in weekend_date:
 factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
 factor_preds.insert(0,1)
 expR = np.dot(beta_mean[-1,:],factor_preds)
+expCov = covariance_matrix(expR,beta_cov,beta_mean,factor_cov,factor_preds)
 
 # parameters
 lb = 0 #0.0
@@ -87,11 +90,11 @@ riskMeasure = 'vol' #vol, VaR, CVaR
 def MV(w, cov_mat):   # w = alpha which is the weight, cov_matrix should be known
     return np.dot(w,np.dot(cov_mat,w.T))
 
-n = len(data_m_ret.columns)
+n = len(expCov.columns)
 muRange = np.arange(0.0055,0.013,0.0002)
 volRange = np.zeros(len(muRange))
 R = expR
-omega = data_m_ret.cov()
+omega = expCov.cov()
 
 wgt = {}   # weight
 
@@ -112,5 +115,12 @@ for i in range(len(muRange)):
 
     wgt[mu].extend(np.squeeze(w.x))
 
-#TanWeight = np.dot(expR,np.dot(cov_mat,expR.T))
+sharpe = np.array([])
+
+for i in range(len(muRange)):
+    sharpe.append(muRange[i]/volRange[i])
+
+bestWgt = wgt[muRange[sharpe.argmax()]]
+weights.loc[-1]=bestWgt
+
 print("--- %s seconds ---" % (time.time() - start_time))
