@@ -1,3 +1,6 @@
+# 引入python3.X的一些特性，用于兼容python3.X
+from __future__ import (absolute_import,division,print_function,
+                        unicode_literals)
 import datetime
 import numpy as np
 import pandas as pd
@@ -8,9 +11,7 @@ import ARIMA
 import stock_data_preprocessor as sdp
 from scipy.optimize import minimize
 import time
-# 引入python3.X的一些特性，用于兼容python3.X
-from __future__ import (absolute_import,division,print_function,
-                        unicode_literals)
+
 
 import backtrader as bt
 import datetime
