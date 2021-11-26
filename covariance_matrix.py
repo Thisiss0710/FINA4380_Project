@@ -8,7 +8,8 @@ import pandas as pd
 # s_rt is the array of stock return
 
 def covariance_matrix(date,s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
-    whole_cov_matrix = pd.DataFrame()
+    l = len(s_rt)
+    whole_cov_matrix = pd.DataFrame(np.zeros((l,l)))
     for m in range(len(s_rt)):  # s_rt = stock_return and stock m 
         for n in range(len(s_rt)):  # stock n
             whole_cov = 0
