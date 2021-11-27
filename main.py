@@ -121,7 +121,7 @@ for i in range(len(muRange)):
     sharpe = np.append(sharpe, muRange[i]/volRange[i])
 
 bestWgt = wgt[muRange[sharpe.argmax()]]
-nulls = weights.isnull(weights.loc[date])
+nulls = pd.isnull(weights.loc[date])
 y = [i for i in range(len(nulls)) if nulls.iloc[i] == True]
 for i in range(len(y)):
     weights.loc[date].iloc[y[i]] = bestWgt[i]
