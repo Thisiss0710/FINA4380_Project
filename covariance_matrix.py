@@ -36,6 +36,9 @@ def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
                         elif x != 0 and y == 0:
                             single_cov = pca_array[x-1] * beta_matrix[m,x,y]
                             whole_cov = whole_cov + single_cov
+                        elif x==0 and y!= 0:
+                            single_cov = pca_array[y-1] * beta_matrix[m,x,y]
+                            whole_cov = whole_cov + single_cov
                         else:
                             single_cov = beta_expected_matrix[m,x]*beta_expected_matrix[m,y]*pca_cov[x-1,y-1] + pca_array[x-1]*pca_array[y-1]*beta_matrix[m,x,y] + pca_cov[x-1,y-1]*beta_matrix[m,x,y] 
                             whole_cov = whole_cov + single_cov
