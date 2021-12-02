@@ -4,6 +4,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from scipy.optimize import minimize
 from pykalman import KalmanFilter
@@ -21,7 +22,7 @@ start_time = time.time()
 
 # sdp.data_download()
 end = datetime.date(2021, 10, 31)
-start = end + relativedelta(months=-2)
+start = end + relativedelta(months=-6)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
@@ -194,13 +195,13 @@ cerebro.addanalyzer(bt.analyzers.DrawDown)
 
 # 4.run
 res = cerebro.run()[0]
-print('value:',cerebro.broker.get_value())
-print('SharpeRatio:',res.analyzers.sharperatio.get_analysis())
-print('DrawDown:',res.analyzers.drawdown.get_analysis())
+print('value:', cerebro.broker.get_value())
+print('SharpeRatio:', res.analyzers.sharperatio.get_analysis()['sharperatio'])
+print('DrawDown:', res.analyzers.drawdown.get_analysis())
     
 # 5.plot results
 cerebro.plot(style='candle',volume=False)
-
+plt.show()
 
 
 

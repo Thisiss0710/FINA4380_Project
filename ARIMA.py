@@ -18,7 +18,6 @@ class ARIMA():
         p = range(0, 4)
         # Generate all different combinations of p, q and q triplets
         self.pdq = list(itertools.product(p, d, q))
-        # Generate all different combinations of seasonal p, q and q triplets
 
     def AICnARIMAX(self,train):
         warnings.filterwarnings("ignore") # specify to ignore warning messages
