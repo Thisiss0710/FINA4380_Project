@@ -110,7 +110,7 @@ for date in monthend_date:
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean, factor_preds)
-    expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean, factor_cov, factor_preds[1:])
+    expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
 
 lb = 0
 ub = 1
