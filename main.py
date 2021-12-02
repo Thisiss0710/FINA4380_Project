@@ -4,7 +4,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
+import matplotlib
 from sklearn.decomposition import PCA
 from scipy.optimize import minimize
 from pykalman import KalmanFilter
@@ -17,6 +17,8 @@ import stock_data_preprocessor as sdp
 from covariance_matrix import covariance_matrix
 
 import time
+
+matplotlib.use('QT5Agg')
 
 start_time = time.time()
 
@@ -113,45 +115,45 @@ for date in monthend_date:
     expR = np.dot(all_beta_mean, factor_preds)
     expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
 
-lb = 0
-ub = 1
-alpha = 0.1
-
-def MV(w, cov_mat):
-    return np.dot(w,np.dot(cov_mat,w.T))
-
-n = len(expCov.columns)
-muRange = np.arange(0.0055,0.013,0.0002)
-volRange = np.zeros(len(muRange))
-R = expR
-omega = expCov.cov()
-
-wgt = {}   # weight
-
-for i in range(len(muRange)):
-    mu = muRange[i]
-    wgt[mu] = []
-    x_0 = np.ones(n)/ n 
-    bndsa = ((lb,ub),)
-    for j in range(1,n):
-        bndsa = bndsa + ((lb,ub),) 
-    consTR = ({'type':'eq','fun': lambda x: 1 - np.sum(x)},
-              {'type':'eq','fun': lambda x: mu - np.dot(x,R)})
-    w = minimize(MV, x_0, method = 'SLSQP', constraints=consTR,bounds=bndsa, args=(omega), options={'disp': False})
-    volRange[i] = np.dot(w.x,np.dot(omega, w.x.T)) ** 0.5
-
-    wgt[mu].extend(np.squeeze(w.x))
-
-sharpe = np.array([])
-
-for i in range(len(muRange)):
-    sharpe = np.append(sharpe, muRange[i]/volRange[i])
-
-bestWgt = wgt[muRange[sharpe.argmax()]]
-nulls = pd.isnull(weights.loc[date])
-y = [i for i in range(len(nulls)) if nulls.iloc[i] == True]
-for i in range(len(y)):
-    weights.loc[date].iloc[y[i]] = bestWgt[i]
+    lb = 0
+    ub = 1
+    alpha = 0.1
+    
+    def MV(w, cov_mat):
+        return np.dot(w,np.dot(cov_mat,w.T))
+    
+    n = len(expCov.columns)
+    muRange = np.arange(0.0055,0.013,0.0002)
+    volRange = np.zeros(len(muRange))
+    R = expR
+    omega = expCov.cov()
+    
+    wgt = {}   # weight
+    
+    for i in range(len(muRange)):
+        mu = muRange[i]
+        wgt[mu] = []
+        x_0 = np.ones(n)/ n 
+        bndsa = ((lb,ub),)
+        for j in range(1,n):
+            bndsa = bndsa + ((lb,ub),) 
+        consTR = ({'type':'eq','fun': lambda x: 1 - np.sum(x)},
+                  {'type':'eq','fun': lambda x: mu - np.dot(x,R)})
+        w = minimize(MV, x_0, method = 'SLSQP', constraints=consTR,bounds=bndsa, args=(omega), options={'disp': False})
+        volRange[i] = np.dot(w.x,np.dot(omega, w.x.T)) ** 0.5
+    
+        wgt[mu].extend(np.squeeze(w.x))
+    
+    sharpe = np.array([])
+    
+    for i in range(len(muRange)):
+        sharpe = np.append(sharpe, muRange[i]/volRange[i])
+    
+    bestWgt = wgt[muRange[sharpe.argmax()]]
+    nulls = pd.isnull(weights.loc[date])
+    y = [i for i in range(len(nulls)) if nulls.iloc[i] == True]
+    for i in range(len(y)):
+        weights.loc[date].iloc[y[i]] = bestWgt[i]
 
 class highest_sharpe_ratio(bt.Strategy):
     
@@ -200,8 +202,7 @@ print('SharpeRatio:', res.analyzers.sharperatio.get_analysis()['sharperatio'])
 print('DrawDown:', res.analyzers.drawdown.get_analysis())
     
 # 5.plot results
-cerebro.plot(style='candle',volume=False)
-plt.show()
+cerebro.plot(style='candle',volume=False,iplot=False)
 
 
 
