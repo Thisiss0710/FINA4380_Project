@@ -6,13 +6,14 @@ import pandas as pd
 # pca_cov is the pca covariance matrix
 # pca_array is the expected value of pca
 # s_rt is the array of stock return
-# error_cov is the var-cov matrix of errors, dimention = 2
+# error_cov is the var-cov matrix of errors, dimension = 2
+# (changed to 1d array containing all variances, dimension=1)
 
 ######################################## 
-# if added the 2d error_cov matrix in main.py, then use line 13 and line 51, delete line 14
+# if added the 2d error_cov matrix in main.py, then use line 15 and line 53, delete line 16
 
-# def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array,error_cov):
-def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
+def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array,error_cov):
+# def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
     l = len(s_rt)
     whole_cov_matrix = pd.DataFrame(np.zeros((l,l)))
     for m in range(len(s_rt)):  # s_rt = stock_return and stock m 
@@ -49,8 +50,8 @@ def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array):
                         else:
                             single_cov = beta_expected_matrix[m,x]*beta_expected_matrix[m,y]*pca_cov[x-1,y-1] + pca_array[x-1]*pca_array[y-1]*beta_matrix[m,x,y] + pca_cov[x-1,y-1]*beta_matrix[m,x,y] 
                             whole_cov = whole_cov + single_cov
-                # whole_cov = whole_cov + error_cov[m,m]
+                whole_cov = whole_cov + error_cov[m]
             
-            print(whole_cov)
+            # print(whole_cov)
             whole_cov_matrix.loc[m,n] = whole_cov
     return(whole_cov_matrix)

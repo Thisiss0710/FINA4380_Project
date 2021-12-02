@@ -1,38 +1,41 @@
 from __future__ import (absolute_import,division,print_function,
                         unicode_literals)
 import datetime
+from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from scipy.optimize import minimize
 from pykalman import KalmanFilter
+from arch.univariate import arch_model
+import backtrader as bt
+
 import DCC
 import ARIMA
 import stock_data_preprocessor as sdp
+from covariance_matrix import covariance_matrix
 
 import time
-from dateutil.relativedelta import relativedelta
-import backtrader as bt
-from covariance_matrix import covariance_matrix
 
 start_time = time.time()
 
 # sdp.data_download()
 end = datetime.date(2021, 10, 31)
-start = end + relativedelta(months=-24)
+start = end + relativedelta(months=-2)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
 
 for date in monthend_date:
     expected_return = []
-    period_price = all_price[date + relativedelta(months=-60):date]
+    period_price = all_price[date + relativedelta(months=-24):date]
     for ticker in period_price:
         if period_price[ticker].iloc[0] == np.nan:
             weights.at[date, ticker] = 0
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
     
+    # PCA
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
     pca = PCA(n_components=0.8)  # explain 80% data
@@ -42,19 +45,22 @@ for date in monthend_date:
     for eigenvec in eigenvectors:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
-
+    
+    # ARMA for 1-period forecast of PCs
     factor_preds = []
     factor_resids = []
     for i in range(factors.shape[1]):
         factor = factors.iloc[:, i].to_frame()
         arima = ARIMA.ARIMA()
-        arima.AICnSARIMAX(factor)
+        arima.AICnARIMAX(factor)
         factor_pred = arima.pred(factor)
         factor_resid = arima.resid(factor)[0].to_numpy()
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
     factor_resids = np.array(factor_resids)
-        
+    
+    # Kalman filter for obtaining betas
+    all_beta_past = []    
     all_beta_mean = []
     all_beta_cov = []
     for idv_return in period_return.T.values:
@@ -73,18 +79,38 @@ for date in monthend_date:
                           n_dim_state=factors.shape[1] + 1,
                           n_dim_obs=1)
         beta_mean, beta_cov = kf.smooth(idv_return)
-        all_beta_mean.append(beta_mean)
+        all_beta_past.append(beta_mean)
+        all_beta_mean.append(beta_mean[-1])
         all_beta_cov.append(beta_cov)
-    all_beta_mean, all_beta_cov = np.array(all_beta_mean), np.array(all_beta_cov)
+    all_beta_past, all_beta_mean, all_beta_cov = np.array(all_beta_past), np.array(all_beta_mean), np.array(all_beta_cov)
 
+    # DCC-garch for covariance matrix between PCs
     dcc = DCC.DCC()
     dccfit = dcc.fit(factor_resids)
     factor_cov = dccfit.forecast()
-
+    
+    # Variance for residual of returns
+    past_expected_returns = []
+    adj_factors = np.insert(factors.to_numpy(), 0, 1, axis=1)
+    for i in range(all_beta_past.shape[0]):
+        past_expected_return = np.sum(all_beta_past[i] * adj_factors, axis=1)
+        past_expected_returns.append(past_expected_return)
+    past_expected_returns = np.array(past_expected_returns).T
+    return_residual = period_return.to_numpy() - past_expected_returns
+    predicted_vars = []
+    for i in range(return_residual.shape[1]):
+        garch = arch_model(return_residual[:,i], vol='garch', p=1, o=0, q=1)
+        garch_fitted = garch.fit(update_freq=0, disp='off')
+        garch_forecast = garch_fitted.forecast(horizon=1)
+        predicted_var = garch_forecast.variance['h.1'].iloc[-1]
+        predicted_vars.append(predicted_var)
+    predicted_vars = np.array(predicted_vars)
+        
+        
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
-    expR = np.dot(all_beta_mean[:,-1,:],factor_preds)
-    expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean[:,-1,:], factor_cov, factor_preds[1:])
+    expR = np.dot(all_beta_mean, factor_preds)
+    expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean, factor_cov, factor_preds[1:])
 
 lb = 0
 ub = 1
@@ -155,8 +181,8 @@ symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
 for symbol in symbols.values:
     file_path = path1 + symbol[0] + '.csv'
     price_matrix = pd.read_csv(file_path,
-                               index_col='Date',
-                               parse_dates=True)
+                                index_col='Date',
+                                parse_dates=True)
     price_matrix.rename(columns={'Open':'open','High':'high','Low':'low','Close':'close','Volumn':'volume'},inplace=True)
     datafeed = bt.feeds.PandasData(dataname=price_matrix,plot=False)
     cerebro.adddata(datafeed,name=symbol[0])

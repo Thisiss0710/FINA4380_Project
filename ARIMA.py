@@ -9,7 +9,7 @@ import statsmodels.api as sm
 class ARIMA():
     def __init__(self):
         self.AICList=[]
-        self.SARIMAX_model_list=[]
+        self.ARIMAX_model_list=[]
         self.predList=[]
         # Define the d and q parameters to take any value between 0 and 1
         q = range(0, 2)
@@ -20,46 +20,46 @@ class ARIMA():
         self.pdq = list(itertools.product(p, d, q))
         # Generate all different combinations of seasonal p, q and q triplets
 
-    def AICnSARIMAX(self,train):
+    def AICnARIMAX(self,train):
         warnings.filterwarnings("ignore") # specify to ignore warning messages
         self.AICList=[]
-        self.SARIMAX_model_list=[]
+        self.ARIMAX_model_list=[]
         for i in range(len(train.columns)):
             train_data_temp=train.iloc[:,i]
             AIC = []
-            SARIMAX_model = []
+            ARIMAX_model = []
             for param in self.pdq:
                     try:
-                        mod = sm.tsa.statespace.SARIMAX(train_data_temp,
-                                                        order=param,
-                                                        enforce_stationarity=True,
-                                                        enforce_invertibility=False)
+                        mod = sm.tsa.arima.ARIMA(train_data_temp,
+                                                       order=param,
+                                                       enforce_stationarity=False,
+                                                       enforce_invertibility=False)
 
-                        results = mod.fit(disp=False)
+                        results = mod.fit() #HERE
                         AIC.append(results.aic)
-                        SARIMAX_model.append([param])
+                        ARIMAX_model.append([param])
                     except:
                         print("Error")
             self.AICList.append(AIC)
-            self.SARIMAX_model_list.append(SARIMAX_model)
+            self.ARIMAX_model_list.append(ARIMAX_model)
         # AICdf=pd.DataFrame(AICList).transpose()
         # AICdf.columns=train_data.columns
-        # SARIMAXdf=pd.DataFrame(SARIMAX_model_list).transpose()
-        # SARIMAXdf.columns=train_data.columns
-        # print('The smallest AIC is {} for model SARIMAX{}x{}'.format(min(AIC), SARIMAX_model[AIC.index(min(AIC))][0],SARIMAX_model[AIC.index(min(AIC))][1]))
+        # ARIMAXdf=pd.DataFrame(ARIMAX_model_list).transpose()
+        # ARIMAXdf.columns=train_data.columns
+        # print('The smallest AIC is {} for model ARIMAX{}x{}'.format(min(AIC), ARIMAX_model[AIC.index(min(AIC))][0],ARIMAX_model[AIC.index(min(AIC))][1]))
 
 # Fit this model
     def pred(self,train):
         self.predList=[]
         for i in range(len(train.columns)):
             train_data_temp = train.iloc[:, i].to_frame()
-            SARIMAX_model_temp=self.SARIMAX_model_list[i]
+            ARIMAX_model_temp=self.ARIMAX_model_list[i]
             AIC_temp=self.AICList[i]
-            mod = sm.tsa.statespace.SARIMAX(train_data_temp,
-                                            order=SARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
-                                            enforce_stationarity=True,
-                                            enforce_invertibility=False)
-            results = mod.fit(disp=False)
+            mod = sm.tsa.arima.ARIMA(train_data_temp,
+                                           order=ARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
+                                           enforce_stationarity=True,
+                                           enforce_invertibility=False)
+            results = mod.fit()
             pred = results.get_prediction(start=-1,dynamic=False) # 1-step ahead forecast
             # pred = results.get_prediction(start='1958-01-01', dynamic=True) # predict last year data
             # pred = results.get_forecast(ForecastTillDate) # forecast
@@ -74,13 +74,13 @@ class ARIMA():
         self.predList=[]
         for i in range(len(train.columns)):
             train_data_temp = train.iloc[:, i]
-            SARIMAX_model_temp=self.SARIMAX_model_list[i]
+            ARIMAX_model_temp=self.ARIMAX_model_list[i]
             AIC_temp=self.AICList[i]
-            mod = sm.tsa.statespace.SARIMAX(train_data_temp,
-                                            order=SARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
-                                            enforce_stationarity=False,
-                                            enforce_invertibility=False)
-            results = mod.fit(disp=False)
+            mod = sm.tsa.arima.ARIMA(train_data_temp,
+                                           order=ARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
+                                           enforce_stationarity=False,
+                                           enforce_invertibility=False)
+            results = mod.fit()
             pred = results.resid # Get residual value
             # predList_temp=pred.predicted_mean.values.tolist()
             self.predList.append(pred)
