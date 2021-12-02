@@ -24,7 +24,7 @@ start_time = time.time()
 
 # sdp.data_download()
 end = datetime.date(2021, 10, 31)
-start = end + relativedelta(months=-6)
+start = end + relativedelta(months=-3)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
@@ -33,8 +33,8 @@ for date in monthend_date:
     expected_return = []
     period_price = all_price[date + relativedelta(months=-24):date]
     for ticker in period_price:
-        if period_price[ticker].iloc[0] == np.nan:
-            weights.at[date, ticker] = 0
+        if np.isnan(period_price[ticker].iloc[0]):
+            weights.loc[date, ticker] = 0
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
     
@@ -185,7 +185,7 @@ for symbol in symbols.values:
     file_path = path1 + symbol[0] + '.csv'
     price_matrix = pd.read_csv(file_path,
                                 index_col='Date',
-                                parse_dates=True)
+                                parse_dates=True)[start:end]
     price_matrix.rename(columns={'Open':'open','High':'high','Low':'low','Close':'close','Volumn':'volume'},inplace=True)
     datafeed = bt.feeds.PandasData(dataname=price_matrix,plot=False)
     cerebro.adddata(datafeed,name=symbol[0])
