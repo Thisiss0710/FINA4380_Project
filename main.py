@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
 import matplotlib
+from matplotlib import pyplot as plt #To be deleted
 from sklearn.decomposition import PCA
 from scipy.optimize import minimize
 from pykalman import KalmanFilter
@@ -18,20 +19,20 @@ from covariance_matrix import covariance_matrix
 
 import time
 
-matplotlib.use('QT5Agg')
+#matplotlib.use('QT5Agg')
 
 start_time = time.time()
 
 # sdp.data_download()
 end = datetime.date(2021, 10, 31)
-start = end + relativedelta(months=-3)
+start = end + relativedelta(months=-12)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
 
 for date in monthend_date:
     expected_return = []
-    period_price = all_price[date + relativedelta(months=-24):date]
+    period_price = all_price[date + relativedelta(months=-60):date]
     for ticker in period_price:
         if np.isnan(period_price[ticker].iloc[0]):
             weights.loc[date, ticker] = 0
@@ -81,7 +82,9 @@ for date in monthend_date:
                                    'initial_state_covariance'],
                           n_dim_state=factors.shape[1] + 1,
                           n_dim_obs=1)
-        beta_mean, beta_cov = kf.smooth(idv_return)
+        beta_mean, beta_cov = kf.em(idv_return, n_iter=5).smooth(idv_return)
+        plt.plot(beta_mean)
+        plt.show()
         all_beta_past.append(beta_mean)
         all_beta_mean.append(beta_mean[-1])
         all_beta_cov.append(beta_cov)
@@ -175,6 +178,7 @@ class highest_sharpe_ratio(bt.Strategy):
 
 # 1.creating a cerebro
 cerebro = bt.Cerebro(stdstats=False)
+cerebro.broker.setcash(1000000.0)
 cerebro.addobserver(bt.observers.Trades)
 cerebro.addobserver(bt.observers.BuySell)
 cerebro.addobserver(bt.observers.Value)

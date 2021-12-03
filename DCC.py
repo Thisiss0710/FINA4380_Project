@@ -95,12 +95,12 @@ class DCC():
         
         theta_int = self.theta
         res = spo.minimize(negative_likelihood,
-                            (theta_int[0], theta_int[1]),
-                            args=(np.array(train)),
-                            method=self.method,
-                            bounds=((0, 1), (0, 1)),
-                            constraints=({'type': 'ineq', 'fun': lambda x: 1 - x[0] - x[1]}),
-                            options={'disp': False})
+                           (theta_int[0], theta_int[1]),
+                           args=(np.array(train)),
+                           method=self.method,
+                           bounds=((0, 1), (0, 1)),
+                           constraints=({'type': 'ineq', 'fun': lambda x: 1 - x[0] - x[1]}),
+                           options={'disp': False})
         print(res)
         return DCCfit(train, res.x)
         
@@ -129,7 +129,7 @@ class DCCfit():
         self.eta = eta.T
         factor_garch = []
         for i in range(y.shape[0]):
-            garch = arch_model(y[i], vol='garch', p=1, o=0, q=1, dist='studentsT')
+            garch = arch_model(y[i], vol='garch', p=1, o=0, q=1)
             garch_fitted = garch.fit(update_freq=0, disp='off')
             factor_garch.append(garch_fitted)
         self.y_garch = np.array(factor_garch)
