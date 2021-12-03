@@ -71,7 +71,7 @@ def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array,er
                             # whole_cov = whole_cov + single_cov
                         if x != 0 and y != 0:
                             single_cov = beta_expected_matrix[m,x]*beta_expected_matrix[n,y]*pca_cov[x-1,y-1]
-                            whole_cov = whole_cov + single_cov
+                            whole_cov += single_cov
   
             # when m != n, 
             # correlation between error terms and correlation between error term and beta or PCi would be 0
@@ -89,7 +89,7 @@ def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array,er
                             whole_cov = whole_cov + single_cov * 2
                         if x != 0 and y != 0:
                             single_cov = beta_expected_matrix[m,x]*beta_expected_matrix[m,y]*pca_cov[x-1,y-1] + pca_array[x-1]*pca_array[y-1]*beta_matrix[m,x,y] + pca_cov[x-1,y-1]*beta_matrix[m,x,y] 
-                            whole_cov = whole_cov + single_cov
+                            whole_cov += single_cov
                 whole_cov = whole_cov + error_cov[m]
             
             # print(whole_cov)

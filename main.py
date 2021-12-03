@@ -22,15 +22,16 @@ import time
 #matplotlib.use('QT5Agg')
 
 start_time = time.time()
-
+plt.plot([1,2,3]) # just so I can see the plot
 # sdp.data_download()
 end = datetime.date(2021, 10, 31)
-start = end + relativedelta(months=-12)
+start = end + relativedelta(months=-24)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
 all_price = sdp.data_preprocess()
 weights = pd.DataFrame(index=monthend_date, columns=all_price.columns)
 
 for date in monthend_date:
+    # Data Cleaning
     expected_return = []
     period_price = all_price[date + relativedelta(months=-60):date]
     for ticker in period_price:
@@ -39,16 +40,19 @@ for date in monthend_date:
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
     
+    print("--- Data Cleaning: %s seconds ---" % (time.time() - start_time))
+    
     # PCA
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
-    pca = PCA(n_components=0.8)  # explain 80% data
+    pca = PCA(n_components=15)  # explain 80% variance
     pca.fit(data_array)
     eigenvectors = pca.components_
     j = 0
     for eigenvec in eigenvectors:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
+    print("--- PCA: %s seconds ---" % (time.time() - start_time))
     
     # ARMA for 1-period forecast of PCs
     factor_preds = []
@@ -62,6 +66,7 @@ for date in monthend_date:
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
     factor_resids = np.array(factor_resids)
+    print("--- ARMA: %s seconds ---" % (time.time() - start_time))
     
     # Kalman filter for obtaining betas
     all_beta_past = []    
@@ -82,18 +87,19 @@ for date in monthend_date:
                                    'initial_state_covariance'],
                           n_dim_state=factors.shape[1] + 1,
                           n_dim_obs=1)
-        beta_mean, beta_cov = kf.em(idv_return, n_iter=5).smooth(idv_return)
-        plt.plot(beta_mean)
-        plt.show()
+        beta_mean, _ = kf.em(idv_return, n_iter=5).smooth(idv_return)
         all_beta_past.append(beta_mean)
         all_beta_mean.append(beta_mean[-1])
+        beta_cov = np.cov(beta_mean, rowvar=False)
         all_beta_cov.append(beta_cov)
     all_beta_past, all_beta_mean, all_beta_cov = np.array(all_beta_past), np.array(all_beta_mean), np.array(all_beta_cov)
-
+    print("--- Kalman Filter: %s seconds ---" % (time.time() - start_time))
+    
     # DCC-garch for covariance matrix between PCs
     dcc = DCC.DCC()
     dccfit = dcc.fit(factor_resids)
     factor_cov = dccfit.forecast()
+    print("--- DCC: %s seconds ---" % (time.time() - start_time))
     
     # Variance for residual of returns
     past_expected_returns = []
@@ -111,12 +117,15 @@ for date in monthend_date:
         predicted_var = garch_forecast.variance['h.1'].iloc[-1]
         predicted_vars.append(predicted_var)
     predicted_vars = np.array(predicted_vars)
+    print("--- Residual Variance: %s seconds ---" % (time.time() - start_time))
         
         
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean, factor_preds)
-    expCov = covariance_matrix(expR, all_beta_cov[:,-1,:,:], all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
+    expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
+            
+    print("--- Cov Matrix: %s seconds ---" % (time.time() - start_time))
 
     lb = 0
     ub = 1
@@ -157,6 +166,7 @@ for date in monthend_date:
     y = [i for i in range(len(nulls)) if nulls.iloc[i] == True]
     for i in range(len(y)):
         weights.loc[date].iloc[y[i]] = bestWgt[i]
+    print("--- Finding weight: %s seconds ---" % (time.time() - start_time))
 
 class highest_sharpe_ratio(bt.Strategy):
     
@@ -206,7 +216,7 @@ print('SharpeRatio:', res.analyzers.sharperatio.get_analysis()['sharperatio'])
 print('DrawDown:', res.analyzers.drawdown.get_analysis())
     
 # 5.plot results
-cerebro.plot(style='candle',volume=False,iplot=False)
+cerebro.plot(style='candle',volume=False) # iplot=False
 
 
 

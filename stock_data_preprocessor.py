@@ -24,7 +24,7 @@ def data_preprocess():
     price_matrix = pd.DataFrame()
     path = 'stock_data/'
     symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
-    for symbol in symbols.values[:30]:
+    for symbol in symbols.values:
         file_path = path + symbol[0] + '.csv'
         adj_close = pd.read_csv(file_path,
                                 index_col='Date',
@@ -69,5 +69,5 @@ def data_adjustment():
         price_matrix = price_matrix.groupby(pd.Grouper(freq='BM')).nth(-1)
         price_matrix.to_csv(f'stock_data1/{symbol[0]}.csv')
 
-data_preprocess()
-data_adjustment()
+# data_preprocess()
+# data_adjustment()
