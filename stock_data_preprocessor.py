@@ -66,7 +66,7 @@ def data_adjustment():
 
         price_matrix.interpolate(method='spline', order=3, inplace=True)
         price_matrix.sort_index(inplace=True)
-        price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
+        price_matrix = price_matrix.groupby(pd.Grouper(freq='BM')).nth(-1)
         price_matrix.to_csv(f'stock_data1/{symbol[0]}.csv')
 
 # b = data_adjustment()
