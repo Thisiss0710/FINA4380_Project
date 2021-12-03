@@ -4,8 +4,6 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
-import matplotlib
-from matplotlib import pyplot as plt #To be deleted
 from sklearn.decomposition import PCA
 from scipy.optimize import minimize
 from pykalman import KalmanFilter
@@ -19,10 +17,7 @@ from covariance_matrix import covariance_matrix
 
 import time
 
-#matplotlib.use('QT5Agg')
-
 start_time = time.time()
-plt.plot([1,2,3]) # just so I can see the plot
 # sdp.data_download()
 end = datetime.date(2021, 10, 31)
 start = end + relativedelta(months=-24)
@@ -45,7 +40,7 @@ for date in monthend_date:
     # PCA
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
-    pca = PCA(n_components=15)  # explain 80% variance
+    pca = PCA(n_components=0.8)  # explain 80% variance
     pca.fit(data_array)
     eigenvectors = pca.components_
     j = 0
@@ -216,7 +211,7 @@ print('SharpeRatio:', res.analyzers.sharperatio.get_analysis()['sharperatio'])
 print('DrawDown:', res.analyzers.drawdown.get_analysis())
     
 # 5.plot results
-cerebro.plot(style='candle',volume=False) # iplot=False
+cerebro.plot(style='candle',volume=False)
 
 
 
