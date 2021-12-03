@@ -184,7 +184,7 @@ class highest_sharpe_ratio(bt.Strategy):
 
 # 1.creating a cerebro
 cerebro = bt.Cerebro(stdstats=False)
-cerebro.broker.setcash(1000000.0)
+cerebro.broker.setcash(10000000.0)
 cerebro.addobserver(bt.observers.Trades)
 cerebro.addobserver(bt.observers.BuySell)
 cerebro.addobserver(bt.observers.Value)
