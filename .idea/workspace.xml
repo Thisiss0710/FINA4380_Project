@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0de05ca6-aa62-48f5-a59f-fee1b4f81cd3" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +37,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="474" y="181" key="#Inspections" timestamp="1638261679195">
+      <screen x="0" y="25" width="1680" height="947" />
+    </state>
+    <state x="474" y="181" key="#Inspections/0.25.1680.947@0.25.1680.947" timestamp="1638261679195" />
     <state x="609" y="109" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1637981364942">
       <screen x="0" y="25" width="1680" height="949" />
     </state>
