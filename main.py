@@ -163,6 +163,7 @@ for date in monthend_date:
         weights.loc[date].iloc[y[i]] = bestWgt[i]
     print("--- Finding weight: %s seconds ---" % (time.time() - start_time))
 
+# Backtesting
 class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
