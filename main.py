@@ -130,7 +130,7 @@ for date in monthend_date:
         return np.dot(w,np.dot(cov_mat,w.T))
     
     n = len(expCov.columns)
-    muRange = np.arange(0.002,0.12,0.002)
+    muRange = np.arange(0.02,0.09,0.002)
     volRange = np.zeros(len(muRange))
     R = expR
     omega = expCov.cov()
