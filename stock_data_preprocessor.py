@@ -18,7 +18,11 @@ def data_download(date=datetime.date(2013, 1, 1)):
             stock.to_csv(f'stock_data/{symbol[0]}.csv')
         except Exception:
             continue
-        
+            
+    SP500 = yf.download('SPY',start=datetime.date(2019, 10, 2), end=modified_end)
+    SP500.to_csv(f'stock_data/SP500.csv')
+    
+    
 # Put the adj_close prices into a single matrix 'price_matrix'
 def data_preprocess():
     price_matrix = pd.DataFrame()
@@ -38,10 +42,16 @@ def data_preprocess():
 
     price_matrix.interpolate(method='spline', order=3, inplace=True)
     price_matrix.sort_index(inplace=True)
+
+    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)     # process data and fill the blanks
+    
+    return grouped_price_matrix
+
     
     # process data and fill the blanks
     grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
     return grouped_price_matrix
+
 
 
 # create data files without adj close
@@ -58,4 +68,21 @@ def data_adjustment():
 
         price_matrix.interpolate(method='spline', order=3, inplace=True)
         price_matrix.sort_index(inplace=True)
+
         price_matrix = price_matrix.groupby(pd.Grouper(freq='BM')).nth(-1)
+        price_matrix.to_csv(f'stock_data1/{symbol[0]}.csv')
+
+def SP500():
+    price_matrix = pd.read_csv('stock_data/SP500.csv',
+                                index_col='Date',
+                                usecols=['Date','Adj Close'],
+                                parse_dates=True)
+    price_matrix.rename(columns={'Adj Close':'SP500'},inplace=True)
+
+    price_matrix.interpolate(method='spline', order=3, inplace=True)
+    price_matrix.sort_index(inplace=True)
+    price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
+    price_matrix.to_csv(f'stock_data1/SP500.csv')
+
+    price_matrix = price_matrix.groupby(pd.Grouper(freq='BM')).nth(-1)
+
