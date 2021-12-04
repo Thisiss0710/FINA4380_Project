@@ -153,7 +153,7 @@ class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
         today = self.data.datetime.date()
-        self.weights = pd.read_csv('/Users/markhui/PycharmProjects/FINA4380_Project/FinalWeights.csv',index_col='Date',parse_dates=True)
+        self.weights = weights
         self.i = 0
         for column_name in self.weights.columns:
             ratio = self.weights[column_name].iloc[self.i]
@@ -182,8 +182,6 @@ dummy_df = pd.read_csv('stock_data1/MMM.csv',
                        parse_dates=True)[start:end] # We extract the Date column values from a sample to standardize the Period of data
 dummy_df.loc[:,:] = 0
 
-weights = pd.read_csv('/Users/markhui/PycharmProjects/FINA4380_Project/FinalWeights.csv')
-weights
 # 1.creating a cerebro
 cerebro = bt.Cerebro(stdstats=False)
 cerebro.addobserver(bt.observers.Trades)
