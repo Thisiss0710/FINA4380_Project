@@ -27,7 +27,8 @@ import pandas as pd
 #             # self.order_target_percent(target=0.45,data='A')
 #             #要留一部分，不应满仓，可供顾客赎回    
   
-weights = pd.read_csv("D:/CUHK/yr4 sem1/FINA380/pythonProject/final project/wgt.csv",index_col = 0)
+# weights = pd.read_csv("D:/CUHK/yr4 sem1/FINA380/pythonProject/final project/wgt.csv",index_col = 0)
+weights = pd.read_csv("wgt.csv",index_col = 0)
 
 
 class highest_sharpe_ratio(bt.Strategy):
