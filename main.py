@@ -18,7 +18,6 @@ from covariance_matrix import covariance_matrix
 import time
 
 start_time = time.time()
-# sdp.data_download()
 end = datetime.date(2021, 10, 31)
 start = end + relativedelta(months=-24)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date

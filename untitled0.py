@@ -17,32 +17,6 @@ from covariance_matrix import covariance_matrix
 
 end = datetime.date(2021, 10, 31)
 start = end + relativedelta(months=-24)
-# class highest_sharpe_ratio(bt.Strategy):
-    
-#     def __init__(self):
-#         pass
-    
-#     def next(self):
-        
-#         today = self.data.datetime.date()
-
-#         year,month = today.year,today.month
-#         weights=pd.read_csv('wgt.csv',
-#                             index_col='Date',
-#                             parse_dates=True)
-#         if month==12:
-#             this_month_length = (datetime.datetime(year+1,1,1)-datetime.datetime(year,month,1)).days
-#         else:
-#             this_month_length = (datetime.datetime(year,month+1,1)-datetime.datetime(year,month,1)).days
-
-#         if today.day == this_month_length:
-#             for column_name in weights.columns:
-#                 for i in weights.index:
-#                     ratio = weights.loc[i,column_name]
-#                     self.order_target_percent(target=ratio,data=column_name)
-        
-#         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
 class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
@@ -59,14 +33,12 @@ class highest_sharpe_ratio(bt.Strategy):
         today = self.data.datetime.date()
         if self.i<24:    
             self.i=self.i+1
-        #print(self.i)
         for column_name in self.weights.columns:
             ratio = self.weights[column_name].iloc[self.i]
             self.order_target_percent(target=ratio,data=column_name)
 
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-        #print(self.i,self.i)
 
 dummy_df = pd.read_csv('stock_data1/MMM.csv',
                        index_col='Date',
