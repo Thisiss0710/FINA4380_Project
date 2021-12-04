@@ -34,9 +34,8 @@ for date in monthend_date:
             weights.loc[date, ticker] = 0
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
-    
+
     print("--- Data Cleaning: %s seconds ---" % (time.time() - start_time))
-    
     # PCA
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
@@ -48,7 +47,7 @@ for date in monthend_date:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
     print("--- PCA: %s seconds ---" % (time.time() - start_time))
-    
+
     # ARMA for 1-period forecast of PCs
     factor_preds = []
     factor_resids = []
@@ -62,9 +61,9 @@ for date in monthend_date:
         factor_resids.append(factor_resid)
     factor_resids = np.array(factor_resids)
     print("--- ARMA: %s seconds ---" % (time.time() - start_time))
-    
+
     # Kalman filter for obtaining betas
-    all_beta_past = []    
+    all_beta_past = []
     all_beta_mean = []
     all_beta_cov = []
     for idv_return in period_return.T.values:
@@ -89,13 +88,13 @@ for date in monthend_date:
         all_beta_cov.append(beta_cov)
     all_beta_past, all_beta_mean, all_beta_cov = np.array(all_beta_past), np.array(all_beta_mean), np.array(all_beta_cov)
     print("--- Kalman Filter: %s seconds ---" % (time.time() - start_time))
-    
+
     # DCC-garch for covariance matrix between PCs
     dcc = DCC.DCC()
     dccfit = dcc.fit(factor_resids)
     factor_cov = dccfit.forecast()
     print("--- DCC: %s seconds ---" % (time.time() - start_time))
-    
+
     # Variance for residual of returns
     past_expected_returns = []
     adj_factors = np.insert(factors.to_numpy(), 0, 1, axis=1)
@@ -113,22 +112,22 @@ for date in monthend_date:
         predicted_vars.append(predicted_var)
     predicted_vars = np.array(predicted_vars)
     print("--- Residual Variance: %s seconds ---" % (time.time() - start_time))
-        
-        
+
+
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean, factor_preds)
     expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
-            
+
     print("--- Cov Matrix: %s seconds ---" % (time.time() - start_time))
 
     lb = 0
     ub = 1
     alpha = 0.1
-    
+
     def MV(w, cov_mat):
         return np.dot(w,np.dot(cov_mat,w.T))
-    
+
     n = len(expCov.columns)
     muRange = np.arange(0.02,0.09,0.002)
     volRange = np.zeros(len(muRange))
@@ -162,7 +161,6 @@ for date in monthend_date:
     for i in range(len(y)):
         weights.loc[date].iloc[y[i]] = bestWgt[i]
     print("--- Finding weight: %s seconds ---" % (time.time() - start_time))
-
 # Backtesting
 class highest_sharpe_ratio(bt.Strategy):
     
