@@ -58,7 +58,7 @@ def data_adjustment():
     path = 'stock_data/'
     symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
     for symbol in symbols.values:
-        file_path = path + symbol[0] + '.csv'
+        file_path = path + symbol + '.csv'
         price_matrix = pd.read_csv(file_path,
                                    index_col='Date',
                                    usecols=['Date','Open','High','Low','Close','Volume'],
