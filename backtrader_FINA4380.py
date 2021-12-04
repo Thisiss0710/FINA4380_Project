@@ -28,6 +28,8 @@ import pandas as pd
 #             #要留一部分，不应满仓，可供顾客赎回    
   
 # weights = pd.read_csv("D:/CUHK/yr4 sem1/FINA380/pythonProject/final project/wgt.csv",index_col = 0)
+
+
 weights = pd.read_csv("wgt.csv",index_col = 0)
 
 
@@ -39,7 +41,6 @@ class highest_sharpe_ratio(bt.Strategy):
     def next(self):
         
         today = self.data.datetime.date()
-        print(today)
 
         year,month = today.year,today.month
         if month==12:
@@ -53,7 +54,7 @@ class highest_sharpe_ratio(bt.Strategy):
                     ratio = weights.loc[i,column_name]
                     self.order_target_percent(target=ratio,data=column_name)
         
-        print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+        print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
 if __name__ == '__main__':
 
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     cerebro.addobserver(bt.observers.Trades)
     cerebro.addobserver(bt.observers.BuySell)
     cerebro.addobserver(bt.observers.Value)
-    cerebro.broker.set_cash(100000000.0)
+    cerebro.broker.set_cash(1000000.0)
         
     path1 = 'stock_data1/'
     symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
@@ -80,11 +81,20 @@ if __name__ == '__main__':
     cerebro.addanalyzer(bt.analyzers.SharpeRatio)
     cerebro.addanalyzer(bt.analyzers.DrawDown)
     
+    # SP500.plot()
+    
     # 4.run
     res = cerebro.run()[0]
-    print('value:',cerebro.broker.get_value())
-    print('SharpeRatio:',res.analyzers.sharperatio.get_analysis())
-    print('DrawDown:',res.analyzers.drawdown.get_analysis())
+    print('Final Portfolio Value:',cerebro.broker.get_value())
+    
+    sharpe_ratio = res.analyzers.sharperatio.get_analysis()
+    print('==========Sharpe Ratio==========')
+    print('SharpeRatio:',sharpe_ratio['sharperatio'])
+    
+    drawdown_data = res.analyzers.drawdown.get_analysis()
+    print('==========Sharpe Ratio==========')
+    print('Max Drawdown:',drawdown_data['max']['drawdown'])
+    print('Max Moneydown:',drawdown_data['max']['moneydown'])
         
     # 5.plot results
     cerebro.plot(style='candle',volume=False)
