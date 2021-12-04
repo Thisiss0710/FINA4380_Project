@@ -172,6 +172,8 @@ class highest_sharpe_ratio(bt.Strategy):
             ratio = self.weights[column_name].iloc[self.i]
             self.order_target_percent(target=ratio,data=column_name)
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
+        
+        self.portfolio_value = pd.DataFrame()
 
 
     def next(self):        
@@ -183,6 +185,10 @@ class highest_sharpe_ratio(bt.Strategy):
             self.order_target_percent(target=ratio,data=column_name)
 
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+        
+        self.portfolio_value[today]=cerebro.broker.getvalue()
+        self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
 
 dummy_df = pd.read_csv('stock_data1/MMM.csv',
                        index_col='Date',
