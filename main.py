@@ -161,7 +161,6 @@ for date in monthend_date:
         weights.loc[date].iloc[y[i]] = bestWgt[i]
     print("--- Finding weight: %s seconds ---" % (time.time() - start_time))
 
-weights=pd.read_csv('final_weights.csv')
 # Backtesting
 class highest_sharpe_ratio(bt.Strategy):
     
