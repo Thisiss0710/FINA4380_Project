@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage{amsmath}
+\usepackage{amsmath, amsfonts}
 \usepackage{listings}
 \title{FINA4380 Stock Return Model}
 \author{WONG, Kong Wa}
@@ -11,34 +11,57 @@
 \section{Our model}
 We model return of stock i as
 \begin{equation*}
-	r_i=\beta_{i0}+\beta_{i1}PC_1+\beta_{i2}PC_2+\beta_{i3}PC_3+\beta_{i4}PC_4+\beta_{i5}PC_5+\varepsilon_i
+	r_{it}=\beta_{i0t}+\beta_{i1t}PC_{1t}+\beta_{i2t}PC_{2t}+...+\beta_{int}PC_{nt}+\varepsilon_{it}
 \end{equation*}
-where $PC_i$ is the ith principal component obtained by PCA, $\beta_i$ are state variables that follow random walk and we assume that $Cov(\varepsilon_i,\varepsilon_j)=0$ for $i \neq j$.
+
+where $PC_i$ is the value of the ith principal component at time $t$ obtained by PCA, $\beta_{it}$ are state variables that follow random walk and we assume that $\varepsilon_{it} \sim \mathcal{N}(0, \sigma_i^2)$ and $Cov(\varepsilon_{it},\varepsilon_{jt})=0$ for $i \neq j$.
+
 \section{Principal Components}
 We select the first n (not necessarily 5) principal components such that the proportion of variance explained exceeds 0.8. \\
 We assume that
 \begin{equation*}
-	y_{it}=\mu+\sum_{j=1}^p a_{ij} y_{t-j}+\sum_{j=1}^q b_{ij} \varepsilon_{t-j}+\varepsilon_{it}
+	PC_{it}=\mu+\sum_{j=1}^p a_{ij} y_{t-j}+\sum_{j=1}^q b_{ij} \varepsilon_{t-j}+\varepsilon_{it}
 \end{equation*}
 \begin{equation*}
-	\varepsilon_{it}=\sigma_{it} \epsilon_{it}, \quad \sigma_{it}^2=\alpha_{i0}+\sum_{j=1}^m \alpha_{ij} \varepsilon_{it}^2+\sum_{j=1}^s \beta_{ij} \sigma_{i,t-j}^2
+	\varepsilon_{it}=\sigma_{it} \epsilon_{it}, \quad \sigma_{it}^2=\alpha_{i0}+\alpha_{i1} \varepsilon_{i,t-1}^2+ \beta_{i1} \sigma_{i,t-1}^2
 \end{equation*}
 \begin{equation*}
-    epsilon
+    \epsilon_{it} \stackrel{iid}{\sim} \mathcal{N}(0, 1)
 \end{equation*}
 And the correlation matrix between error terms (and hence stock return) is given by DCC.
+
 \section{Betas}
 We assume that betas change over time and can be modeled by
 \begin{equation*}
-    \mathbf{\beta_t} = I\mathbf{\beta_t}+\mathbf{\epsilon_t}
+    \mathbf{\beta}_{it} = I\mathbf{\beta}_{it}+\mathbf{\epsilon}_{it}
 \end{equation*}
 \begin{equation*}
-    where \quad \mathbf{\epsilon_t} \sim N(0,\mathbf{Q})
+    where \quad \mathbf{\epsilon}_{it} \sim N(0,\mathbf{Q})
 \end{equation*}
-We obtain the forecast for $\mathbf{\beta}$ and $\mathbf{Q}$ by Kalman filter.
+We obtain the forecast for $\mathbf{\beta}$ and $\mathbf{Q}$ by Kalman filter and for simplicity we assume that $Cov(\mathbf{\beta}_{it}, \mathbf{\beta}_{jt} = \mathbf{0})$
+
+\section{Residual of Returns}
+We use GARCH(1, 1) model to estimate the variance of residual of returns $\varepsilon_{it}$. i.e., 
+\begin{equation*}
+	\varepsilon_{it}=\sigma_{it} \epsilon_{it}, \quad \sigma_{it}^2=\alpha_{i0}+\alpha_{i1} \varepsilon_{i,t-1}^2+ \beta_{i1} \sigma_{i,t-1}^2
+\end{equation*}
+\begin{equation*}
+    \epsilon_{it} \stackrel{iid}{\sim} \mathcal{N}(0, 1)
+\end{equation*}
+and the variance is given by $\sigma_{it}^2$.
+
 \section{Covariance matrix of stock return}
-when $m=n$,
+We have
 \begin{align*}
-    Cov
+    Var(r_p)&=Var(\beta_{p0t}) \\
+    &+2\sum_{i=1}^n \mathbb{E}(PC_{it})Cov(\beta_{p0t},\beta_{pit}) \\
+    &+\sum_{i=1}^n\sum_{j=1}^n(\mathbb{E}(\beta_{pit})\mathbb{E}(\beta_{pjt})Cov(PC_{it},PC_{jt}) \\
+    &\qquad\quad\;\,+\mathbb{E}(PC_{it})\mathbb{E}(PC_{jt})Cov(\beta_{pit}, \beta_{pjt}) \\
+    &\qquad\quad\;\,+Cov(\beta_{p0t},\beta_{pit})Cov(PC_{it},PC_{jt})
 \end{align*}
+And for all $p\neq q$,
+\begin{equation*}
+    Cov(r_p, r_q) = \sum_{i=1}^n\sum_{j=1}^n\mathbb{E}(\beta_{pit})\mathbb{E}(\beta_{qjt})Cov(PC_{it}, PC_{jt})
+\end{equation*}
+    
 \end{document}
