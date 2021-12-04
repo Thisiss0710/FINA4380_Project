@@ -156,7 +156,7 @@ class highest_sharpe_ratio(bt.Strategy):
         self.weights = weights
         self.i = 0
         for column_name in self.weights.columns:
-            ratio = self.weights[column_name].iloc[self.i]
+            ratio= self.weights[column_name].iloc[self.i]
             self.order_target_percent(target=ratio,data=column_name)
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
         
@@ -187,8 +187,8 @@ cerebro = bt.Cerebro(stdstats=False)
 cerebro.addobserver(bt.observers.Trades)
 cerebro.addobserver(bt.observers.BuySell)
 cerebro.addobserver(bt.observers.Value)
-cerebro.broker.set_cash(100000000.0)
-    
+cerebro.broker.set_cash(1000000.0)
+
 path1 = 'stock_data1/'
 symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
 for symbol in symbols.values:
@@ -227,7 +227,6 @@ print('==========Trade Analysis==========')
 print('Total trades',trading_analyzer['total'])
 print('won',trading_analyzer['won'])
 print('lost',trading_analyzer['lost'])
-
 
 # 5.plot results
 cerebro.plot(style='candle',volume=False)
