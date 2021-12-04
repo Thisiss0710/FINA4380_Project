@@ -171,6 +171,8 @@ class highest_sharpe_ratio(bt.Strategy):
     
     def next(self):
         today = self.data.datetime.date()
+        print(today)
+        
         year,month = today.year,today.month
         if month==12:
             this_month_length = (datetime.datetime(year+1,1,1)-datetime.datetime(year,month,1)).days
@@ -181,6 +183,7 @@ class highest_sharpe_ratio(bt.Strategy):
                 for i in weights.index:
                     ratio = weights.loc[i,column_name]
                     self.order_target_percent(target=ratio,data=column_name)
+            print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
 # 1.creating a cerebro
 cerebro = bt.Cerebro(stdstats=False)
