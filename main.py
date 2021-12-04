@@ -161,6 +161,7 @@ for date in monthend_date:
     for i in range(len(y)):
         weights.loc[date].iloc[y[i]] = bestWgt[i]
     print("--- Finding weight: %s seconds ---" % (time.time() - start_time))
+
 # Backtesting
 class highest_sharpe_ratio(bt.Strategy):
     
@@ -183,12 +184,17 @@ class highest_sharpe_ratio(bt.Strategy):
                     self.order_target_percent(target=ratio,data=column_name)
             print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
+dummy_df = pd.read_csv('stock_data1/MMM.csv',
+                       index_col='Date',
+                       parse_dates=True)[start:end]
+dummy_df.loc[:,:] = 0
+
 # 1.creating a cerebro
 cerebro = bt.Cerebro(stdstats=False)
-cerebro.broker.setcash(10000000.0)
 cerebro.addobserver(bt.observers.Trades)
 cerebro.addobserver(bt.observers.BuySell)
 cerebro.addobserver(bt.observers.Value)
+cerebro.broker.set_cash(100000000.0)
     
 path1 = 'stock_data1/'
 symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
@@ -197,7 +203,8 @@ for symbol in symbols.values:
     price_matrix = pd.read_csv(file_path,
                                 index_col='Date',
                                 parse_dates=True)[start:end]
-    price_matrix.rename(columns={'Open':'open','High':'high','Low':'low','Close':'close','Volumn':'volume'},inplace=True)
+    matrix_start = price_matrix.index[0]
+    price_matrix = pd.concat([dummy_df[:matrix_start][1:], price_matrix])
     datafeed = bt.feeds.PandasData(dataname=price_matrix,plot=False)
     cerebro.adddata(datafeed,name=symbol[0])
 
@@ -205,13 +212,30 @@ for symbol in symbols.values:
 cerebro.addstrategy(highest_sharpe_ratio)
 cerebro.addanalyzer(bt.analyzers.SharpeRatio)
 cerebro.addanalyzer(bt.analyzers.DrawDown)
-
+cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
+    
+# SP500.plot()
+    
 # 4.run
 res = cerebro.run()[0]
-print('value:', cerebro.broker.get_value())
-print('SharpeRatio:', res.analyzers.sharperatio.get_analysis()['sharperatio'])
-print('DrawDown:', res.analyzers.drawdown.get_analysis())
+print('Final Portfolio Value:',cerebro.broker.get_value())
     
+sharpe_ratio = res.analyzers.sharperatio.get_analysis()
+print('==========Sharpe Ratio==========')
+print('SharpeRatio:',sharpe_ratio['sharperatio'])
+    
+drawdown_data = res.analyzers.drawdown.get_analysis()
+print('==========Draw Down==========')
+print('Max Drawdown:',drawdown_data['max']['drawdown'])
+print('Max Moneydown:',drawdown_data['max']['moneydown'])
+    
+trading_analyzer = res.analyzers.tradeanalyzer.get_analysis()
+print('==========Trade Analysis==========')
+print('Total trades',trading_analyzer['total'])
+print('won',trading_analyzer['won'])
+print('lost',trading_analyzer['lost'])
+
+
 # 5.plot results
 cerebro.plot(style='candle',volume=False)
 
