@@ -71,6 +71,7 @@ for symbol in symbols.values:
 cerebro.addstrategy(highest_sharpe_ratio)
 cerebro.addanalyzer(bt.analyzers.SharpeRatio)
 cerebro.addanalyzer(bt.analyzers.DrawDown)
+cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
     
 # SP500.plot()
     
@@ -83,9 +84,16 @@ print('==========Sharpe Ratio==========')
 print('SharpeRatio:',sharpe_ratio['sharperatio'])
     
 drawdown_data = res.analyzers.drawdown.get_analysis()
-print('==========Sharpe Ratio==========')
+print('==========Draw Down==========')
 print('Max Drawdown:',drawdown_data['max']['drawdown'])
 print('Max Moneydown:',drawdown_data['max']['moneydown'])
-        
+    
+trading_analyzer = res.analyzers.tradeanalyzer.get_analysis()
+print('==========Trade Analysis==========')
+print('Total trades',trading_analyzer['total'])
+print('won',trading_analyzer['won'])
+print('lost',trading_analyzer['lost'])
+
+
 # 5.plot results
 cerebro.plot(style='candle',volume=False)
