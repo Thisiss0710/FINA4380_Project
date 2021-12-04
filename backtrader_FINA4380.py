@@ -1,12 +1,15 @@
 # 引入python3.X的一些特性，用于兼容python3.X
 from __future__ import (absolute_import,division,print_function,
                         unicode_literals)
-
+import datetime
 import backtrader as bt
 import datetime
 import pandas as pd
+import time
 
-
+start_time = time.time()
+end = datetime.date(2021, 10, 31)
+start = end + relativedelta(months=-24)
 
 class highest_sharpe_ratio(bt.Strategy):
     
@@ -19,7 +22,7 @@ class highest_sharpe_ratio(bt.Strategy):
             self.order_target_percent(target=ratio,data=column_name)
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
         
-        self.portfolio_value = pd.DataFrame()
+        self.portfolio_value = pd.DataFrame(columns=['value changing'])
 
     def next(self):        
         today = self.data.datetime.date()    
@@ -31,12 +34,14 @@ class highest_sharpe_ratio(bt.Strategy):
             self.order_target_percent(target=ratio,data=column_name)
 
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
-        #self.portfolio_value.append(cerebro.broker.getvalue())
-        #self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
         
-        self.portfolio_value[today]=cerebro.broker.getvalue()
+        self.portfolio_value = self.portfolio_value.append({'value changing':cerebro.broker.getvalue()},ignore_index=True)
         self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
+        
+dummy_df = pd.read_csv('stock_data1/MMM.csv',
+                       index_col='Date',
+                       parse_dates=True)[start:end]
+dummy_df.loc[:,:] = 0
 
 if __name__ == '__main__':
 
