@@ -18,6 +18,9 @@ def data_download(date=datetime.date(2013, 1, 1)):
             stock.to_csv(f'stock_data/{symbol[0]}.csv')
         except Exception:
             continue
+            
+    SP500 = yf.download('SPY',start=modified_start, end=modified_end)
+    SP500.to_csv(f'stock_data/SP500.csv')
         
 # close the adj_close prices into a single matrix 'price_matrix'
 def data_preprocess():
@@ -36,21 +39,11 @@ def data_preprocess():
         else:
             price_matrix = pd.merge(price_matrix, adj_close, on=['Date'], how='outer')
 
-    # price_matrix.set_index(price_matrix.columns[0],inplace=True)
-    # price_matrix.index = pd.to_datetime(price_matrix.index,format="%Y/%m/%d")
     price_matrix.interpolate(method='spline', order=3, inplace=True)
     price_matrix.sort_index(inplace=True)
-    # price_matrix.to_csv('collected_adj_close.csv')
+    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)     # process data and fill the blanks
     
-    # process data and fill the blanks
-    grouped_price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
-    # grouped_price_matrix.index = pd.to_datetime(grouped_price_matrix.index,format="%Y/%m/%d")
-    
-    # grouped_price_matrix.dropna(axis='columns',inplace=True)
-    # grouped_price_matrix.to_csv('collected_adj_close1.csv')
     return grouped_price_matrix
-
-# a = data_preprocess()
 
 # create data files without adj close
 def data_adjustment():
@@ -69,5 +62,14 @@ def data_adjustment():
         price_matrix = price_matrix.groupby(pd.Grouper(freq='BM')).nth(-1)
         price_matrix.to_csv(f'stock_data1/{symbol[0]}.csv')
 
-# data_download()
-# data_adjustment()
+def SP500(date=datetime.date(2013, 1, 1)):
+    price_matrix = pd.read_csv('stock_data/SP500.csv',
+                                index_col='Date',
+                                usecols=['Date','Adj Close'],
+                                parse_dates=True)
+    price_matrix.rename(columns={'Adj Close':'SP500'},inplace=True)
+
+    price_matrix.interpolate(method='spline', order=3, inplace=True)
+    price_matrix.sort_index(inplace=True)
+    price_matrix = price_matrix.groupby(pd.Grouper(freq='M')).nth(-1)
+    price_matrix.to_csv(f'stock_data1/SP500.csv')

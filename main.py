@@ -166,23 +166,24 @@ for date in monthend_date:
 class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
-        pass
-    
-    def next(self):
         today = self.data.datetime.date()
-        print(today)
-        
-        year,month = today.year,today.month
-        if month==12:
-            this_month_length = (datetime.datetime(year+1,1,1)-datetime.datetime(year,month,1)).days
-        else:
-            this_month_length = (datetime.datetime(year,month+1,1)-datetime.datetime(year,month,1)).days
-        if today.day == this_month_length:
-            for column_name in weights.columns:
-                for i in weights.index:
-                    ratio = weights.loc[i,column_name]
-                    self.order_target_percent(target=ratio,data=column_name)
-            print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+        self.weights = pd.read_csv('wgt.csv',index_col='Date',parse_dates=True)
+        self.i = 0
+        for column_name in self.weights.columns:
+            ratio = self.weights[column_name].iloc[self.i]
+            self.order_target_percent(target=ratio,data=column_name)
+        print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+
+    def next(self):        
+        today = self.data.datetime.date()
+        if self.i<24:    
+            self.i=self.i+1
+        for column_name in self.weights.columns:
+            ratio = self.weights[column_name].iloc[self.i]
+            self.order_target_percent(target=ratio,data=column_name)
+
+        print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
 dummy_df = pd.read_csv('stock_data1/MMM.csv',
                        index_col='Date',
