@@ -156,11 +156,11 @@ class highest_sharpe_ratio(bt.Strategy):
         self.weights = weights
         self.i = 0
         for column_name in self.weights.columns:
-            ratio= self.weights[column_name].iloc[self.i]
+            ratio = self.weights[column_name].iloc[self.i]
             self.order_target_percent(target=ratio,data=column_name)
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
         
-        self.portfolio_value = pd.DataFrame()
+        self.portfolio_value = pd.DataFrame(columns=['value changing'])
 
 
     def next(self):        
@@ -173,9 +173,9 @@ class highest_sharpe_ratio(bt.Strategy):
 
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-        
-        self.portfolio_value[today]=cerebro.broker.getvalue()
+        self.portfolio_value = self.portfolio_value.append({'value changing':cerebro.broker.getvalue()},ignore_index=True)
         self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
+        
 
 dummy_df = pd.read_csv('stock_data1/MMM.csv',
                        index_col='Date',
@@ -188,7 +188,7 @@ cerebro.addobserver(bt.observers.Trades)
 cerebro.addobserver(bt.observers.BuySell)
 cerebro.addobserver(bt.observers.Value)
 cerebro.broker.set_cash(1000000.0)
-
+    
 path1 = 'stock_data1/'
 symbols = pd.read_csv('S&P500_ticker1.csv', usecols=['Symbol'])
 for symbol in symbols.values:
@@ -206,12 +206,13 @@ cerebro.addstrategy(highest_sharpe_ratio)
 cerebro.addanalyzer(bt.analyzers.SharpeRatio)
 cerebro.addanalyzer(bt.analyzers.DrawDown)
 cerebro.addanalyzer(bt.analyzers.TradeAnalyzer)
-    
-# SP500.plot()
+cerebro.broker.setcommission(commission = 0.001)
+  
+#SP500.plot()
     
 # 4.run
 res = cerebro.run()[0]
-print('Final Portfolio Value:',cerebro.broker.get_value())
+print('Final Portfolio Value:',cerebro.broker.get_value())   
     
 sharpe_ratio = res.analyzers.sharperatio.get_analysis()
 print('==========Sharpe Ratio==========')
@@ -224,12 +225,12 @@ print('Max Moneydown:',drawdown_data['max']['moneydown'])
     
 trading_analyzer = res.analyzers.tradeanalyzer.get_analysis()
 print('==========Trade Analysis==========')
-print('Total trades',trading_analyzer['total'])
-print('won',trading_analyzer['won'])
-print('lost',trading_analyzer['lost'])
+#print('Total pnl',trading_analyzer['pnl'])
+print('Maximum Won:',trading_analyzer['won']['pnl']['max'])
+print('Maximum Lost:',trading_analyzer['lost']['pnl']['max'])
 
 # 5.plot results
-cerebro.plot(style='candle',volume=False)
+cerebro.plot()
 
 
 
