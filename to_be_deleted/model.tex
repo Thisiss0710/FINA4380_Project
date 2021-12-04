@@ -17,7 +17,7 @@ We model return of stock i as
 where $PC_i$ is the value of the ith principal component at time $t$ obtained by PCA, $\beta_{it}$ are state variables that follow random walk and we assume that $\varepsilon_{it} \sim \mathcal{N}(0, \sigma_i^2)$ and $Cov(\varepsilon_{it},\varepsilon_{jt})=0$ for $i \neq j$.
 
 \section{Principal Components}
-We select the first n (not necessarily 5) principal components such that the proportion of variance explained exceeds 0.8. \\
+We select the first n principal components such that the proportion of variance explained exceeds 0.8. \\
 We assume that
 \begin{equation*}
 	PC_{it}=\mu+\sum_{j=1}^p a_{ij} y_{t-j}+\sum_{j=1}^q b_{ij} \varepsilon_{t-j}+\varepsilon_{it}
@@ -33,12 +33,12 @@ And the correlation matrix between error terms (and hence stock return) is given
 \section{Betas}
 We assume that betas change over time and can be modeled by
 \begin{equation*}
-    \mathbf{\beta}_{it} = I\mathbf{\beta}_{it}+\mathbf{\epsilon}_{it}
+    \mathbf{\beta}_{int} = I\mathbf{\beta}_{in,t-1}+\mathbf{\epsilon}_{it}
 \end{equation*}
 \begin{equation*}
     where \quad \mathbf{\epsilon}_{it} \sim N(0,\mathbf{Q})
 \end{equation*}
-We obtain the forecast for $\mathbf{\beta}$ and $\mathbf{Q}$ by Kalman filter and for simplicity we assume that $Cov(\mathbf{\beta}_{it}, \mathbf{\beta}_{jt} = \mathbf{0})$
+We obtain the forecast for $\mathbf{\beta}$ and $\mathbf{Q}$ by Kalman filter and for simplicity we assume that $Cov(\mathbf{\beta}_{int}, \mathbf{\beta}_{jnt} = \mathbf{0})$ for all $i \neq j$
 
 \section{Residual of Returns}
 We use GARCH(1, 1) model to estimate the variance of residual of returns $\varepsilon_{it}$. i.e., 

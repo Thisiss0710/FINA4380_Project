@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0de05ca6-aa62-48f5-a59f-fee1b4f81cd3" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="0de05ca6-aa62-48f5-a59f-fee1b4f81cd3" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,7 +18,8 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -44,10 +43,10 @@
       <screen x="0" y="25" width="1680" height="949" />
     </state>
     <state x="609" y="109" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1680.949@0.25.1680.949" timestamp="1637981364942" />
-    <state x="698" y="176" key="SettingsEditor" timestamp="1638608464081">
+    <state x="449" y="93" key="SettingsEditor" timestamp="1637977918726">
       <screen x="0" y="25" width="1680" height="949" />
     </state>
-    <state x="698" y="176" key="SettingsEditor/0.25.1680.949@0.25.1680.949" timestamp="1638608464081" />
+    <state x="449" y="93" key="SettingsEditor/0.25.1680.949@0.25.1680.949" timestamp="1637977918726" />
     <state x="489" y="219" width="700" height="530" key="recent.locations.popup" timestamp="1637977672757">
       <screen x="0" y="25" width="1680" height="949" />
     </state>

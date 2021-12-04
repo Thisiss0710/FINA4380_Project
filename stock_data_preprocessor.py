@@ -23,7 +23,7 @@ def data_download(date=datetime.date(2013, 1, 1)):
     SP500.to_csv(f'stock_data/SP500.csv')
     
     
-# close the adj_close prices into a single matrix 'price_matrix'
+# Put the adj_close prices into a single matrix 'price_matrix'
 def data_preprocess():
     price_matrix = pd.DataFrame()
     path = 'stock_data/'
