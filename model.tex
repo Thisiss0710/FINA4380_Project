@@ -53,15 +53,16 @@ and the variance is given by $\sigma_{it}^2$.
 \section{Covariance matrix of stock return}
 We have
 \begin{align*}
-    Var(r_p)&=Var(\beta_{p0t}) \\
+    Var(r_{pt})&=Var(\beta_{p0t}) \\
     &+2\sum_{i=1}^n \mathbb{E}(PC_{it})Cov(\beta_{p0t},\beta_{pit}) \\
     &+\sum_{i=1}^n\sum_{j=1}^n(\mathbb{E}(\beta_{pit})\mathbb{E}(\beta_{pjt})Cov(PC_{it},PC_{jt}) \\
     &\qquad\quad\;\,+\mathbb{E}(PC_{it})\mathbb{E}(PC_{jt})Cov(\beta_{pit}, \beta_{pjt}) \\
-    &\qquad\quad\;\,+Cov(\beta_{p0t},\beta_{pit})Cov(PC_{it},PC_{jt})
+    &\qquad\quad\;\,+Cov(\beta_{p0t},\beta_{pit})Cov(PC_{it},PC_{jt})) \\
+    &+Var(\varepsilon_{pt})
 \end{align*}
 And for all $p\neq q$,
 \begin{equation*}
-    Cov(r_p, r_q) = \sum_{i=1}^n\sum_{j=1}^n\mathbb{E}(\beta_{pit})\mathbb{E}(\beta_{qjt})Cov(PC_{it}, PC_{jt})
+    Cov(r_{pt},r_{qt}) = \sum_{i=1}^n\sum_{j=1}^n\mathbb{E}(\beta_{pit})\mathbb{E}(\beta_{qjt})Cov(PC_{it}, PC_{jt})
 \end{equation*}
     
 \end{document}
