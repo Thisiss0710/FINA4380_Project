@@ -92,9 +92,15 @@ if __name__ == '__main__':
     print('SharpeRatio:',sharpe_ratio['sharperatio'])
     
     drawdown_data = res.analyzers.drawdown.get_analysis()
-    print('==========Sharpe Ratio==========')
+    print('==========Draw Down==========')
     print('Max Drawdown:',drawdown_data['max']['drawdown'])
     print('Max Moneydown:',drawdown_data['max']['moneydown'])
+    
+    trading_analyzer = res.analyzers.tradeanalyzer.get_analysis()
+    print('==========Trade Analysis==========')
+    print(trading_analyzer)
+    # print('Max Drawdown:',drawdown_data['max']['drawdown'])
+    # print('Max Moneydown:',drawdown_data['max']['moneydown'])
         
     # 5.plot results
     cerebro.plot(style='candle',volume=False)
