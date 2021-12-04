@@ -6,48 +6,24 @@ import backtrader as bt
 import datetime
 import pandas as pd
 
-# class half_half_balance(bt.Strategy):
-    
-#     def __init__(self):
-#         pass
-    
-#     def next(self):
-#         today = self.data.datetime.date()
-#         year,month = today.year,today.month
-#         if month==12:
-#             this_month_length = (datetime.datetime(year+1,1,1)-datetime.datetime(year,month,1)).days
-#         else:
-#             this_month_length = (datetime.datetime(year,month+1,1)-datetime.datetime(year,month,1)).days
-#         if today.day == this_month_length:  #月底那一天rebalance
-#             for column_name in weight.columns:
-#                 for i in weight.index:
-#                     ratio = weight.loc[i,column_name]
-#                     self.order_target_percent(target=ratio,data=column_name)
-#             # self.order_target_percent(target=0.45,data='AAL')
-#             # self.order_target_percent(target=0.45,data='A')
-#             #要留一部分，不应满仓，可供顾客赎回    
-  
-# weights = pd.read_csv("D:/CUHK/yr4 sem1/FINA380/pythonProject/final project/wgt.csv",index_col = 0)
-
-
-weights = pd.read_csv("wgt.csv",index_col = 0)
 
 
 class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
         today = self.data.datetime.date()
-        self.weights = pd.read_csv('wgt.csv',index_col='Date',parse_dates=True)
+        self.weights = pd.read_csv('final_weights.csv',index_col='Date',parse_dates=True)
         self.i = 0
         for column_name in self.weights.columns:
             ratio = self.weights[column_name].iloc[self.i]
             self.order_target_percent(target=ratio,data=column_name)
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
+        
+        self.portfolio_value = pd.DataFrame()
 
     def next(self):        
-        today = self.data.datetime.date()
-        if self.i<24:    
+        today = self.data.datetime.date()    
+        if self.i < 24:
             self.i=self.i+1
         #print(self.i)
         for column_name in self.weights.columns:
@@ -56,7 +32,11 @@ class highest_sharpe_ratio(bt.Strategy):
 
         print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-        #print(self.i,self.i)
+        #self.portfolio_value.append(cerebro.broker.getvalue())
+        #self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
+        
+        self.portfolio_value[today]=cerebro.broker.getvalue()
+        self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
 
 if __name__ == '__main__':
 

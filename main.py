@@ -15,9 +15,6 @@ import ARIMA
 import stock_data_preprocessor as sdp
 from covariance_matrix import covariance_matrix
 
-import time
-
-start_time = time.time()
 end = datetime.date(2021, 10, 31)
 start = end + relativedelta(months=-24)
 monthend_date = pd.date_range(start=start, end=end, freq='BM').date
@@ -34,7 +31,6 @@ for date in monthend_date:
     period_price.dropna(how='any', axis=1, inplace=True)
     period_return = period_price.pct_change().iloc[1:]
 
-    print("--- Data Cleaning: %s seconds ---" % (time.time() - start_time))
     # PCA
     factors = pd.DataFrame()
     data_array = period_return.to_numpy()
@@ -45,7 +41,6 @@ for date in monthend_date:
     for eigenvec in eigenvectors:
         factors[j] = np.dot(period_return, eigenvec)
         j += 1
-    print("--- PCA: %s seconds ---" % (time.time() - start_time))
 
     # ARMA for 1-period forecast of PCs
     factor_preds = []
@@ -59,7 +54,6 @@ for date in monthend_date:
         factor_preds.append(factor_pred)
         factor_resids.append(factor_resid)
     factor_resids = np.array(factor_resids)
-    print("--- ARMA: %s seconds ---" % (time.time() - start_time))
 
     # Kalman filter for obtaining betas
     all_beta_past = []
@@ -86,13 +80,11 @@ for date in monthend_date:
         beta_cov = np.cov(beta_mean, rowvar=False)
         all_beta_cov.append(beta_cov)
     all_beta_past, all_beta_mean, all_beta_cov = np.array(all_beta_past), np.array(all_beta_mean), np.array(all_beta_cov)
-    print("--- Kalman Filter: %s seconds ---" % (time.time() - start_time))
 
     # DCC-garch for covariance matrix between PCs
     dcc = DCC.DCC()
     dccfit = dcc.fit(factor_resids)
     factor_cov = dccfit.forecast()
-    print("--- DCC: %s seconds ---" % (time.time() - start_time))
 
     # Variance for residual of returns
     past_expected_returns = []
@@ -110,15 +102,11 @@ for date in monthend_date:
         predicted_var = garch_forecast.variance['h.1'].iloc[-1]
         predicted_vars.append(predicted_var)
     predicted_vars = np.array(predicted_vars)
-    print("--- Residual Variance: %s seconds ---" % (time.time() - start_time))
-
 
     factor_preds=[factor_preds[i][0][0] for i in range(len(factor_preds))]
     factor_preds.insert(0,1)
     expR = np.dot(all_beta_mean, factor_preds)
     expCov = covariance_matrix(expR, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
-
-    print("--- Cov Matrix: %s seconds ---" % (time.time() - start_time))
 
     lb = 0
     ub = 1
@@ -159,29 +147,35 @@ for date in monthend_date:
     y = [i for i in range(len(nulls)) if nulls.iloc[i] == True]
     for i in range(len(y)):
         weights.loc[date].iloc[y[i]] = bestWgt[i]
-    print("--- Finding weight: %s seconds ---" % (time.time() - start_time))
 
 # Backtesting
 class highest_sharpe_ratio(bt.Strategy):
     
     def __init__(self):
-        pass
-    
-    def next(self):
         today = self.data.datetime.date()
-        print(today)
+        self.weights = pd.read_csv('wgt.csv',index_col='Date',parse_dates=True)
+        self.i = 0
+        for column_name in self.weights.columns:
+            ratio = self.weights[column_name].iloc[self.i]
+            self.order_target_percent(target=ratio,data=column_name)
+        print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
         
-        year,month = today.year,today.month
-        if month==12:
-            this_month_length = (datetime.datetime(year+1,1,1)-datetime.datetime(year,month,1)).days
-        else:
-            this_month_length = (datetime.datetime(year,month+1,1)-datetime.datetime(year,month,1)).days
-        if today.day == this_month_length:
-            for column_name in weights.columns:
-                for i in weights.index:
-                    ratio = weights.loc[i,column_name]
-                    self.order_target_percent(target=ratio,data=column_name)
-            print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+        self.portfolio_value = pd.DataFrame()
+
+
+    def next(self):        
+        today = self.data.datetime.date()
+        if self.i<24:    
+            self.i=self.i+1
+        for column_name in self.weights.columns:
+            ratio = self.weights[column_name].iloc[self.i]
+            self.order_target_percent(target=ratio,data=column_name)
+
+        print(today,'Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+        
+        self.portfolio_value[today]=cerebro.broker.getvalue()
+        self.portfolio_value.to_csv(f'stock_data1/portfolio_value.csv')
 
 dummy_df = pd.read_csv('stock_data1/MMM.csv',
                        index_col='Date',
